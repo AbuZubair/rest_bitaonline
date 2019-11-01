@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--Created by TIBCO WSDL-->
+<wsdl:definitions xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" xmlns:tns="http://xmlns.example.com/1490617811780/Topup3HKOperationImpl/Business__Process/_3HK__Topup/Topup3HKOperationImpl/Business__Process/_3HK__Topup" xmlns:ns0="http://www.tibco.com/schemas/Angiecode_17Feb/Shared_Resources/XML/3HK/Schema.xsd" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" name="Untitled" targetNamespace="http://xmlns.example.com/1490617811780/Topup3HKOperationImpl/Business__Process/_3HK__Topup/Topup3HKOperationImpl/Business__Process/_3HK__Topup">
+    <wsdl:types>
+        <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" targetNamespace="http://www.tibco.com/schemas/Angiecode_17Feb/Shared_Resources/XML/3HK/Schema.xsd" elementFormDefault="qualified" attributeFormDefault="unqualified">
+            <xs:element name="AttribDtl">
+                <xs:complexType>
+                    <xs:simpleContent>
+                        <xs:extension base="xs:string">
+                            <xs:attribute name="Name" type="xs:string"/>
+                        </xs:extension>
+                    </xs:simpleContent>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="Attribute">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element ref="ns0:AttribDtl" maxOccurs="unbounded"/>
+                        <xs:element ref="ns0:Attribute" minOccurs="0" maxOccurs="unbounded"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="CalledNo" type="xs:string"/>
+            <xs:element name="GenericNSTibcoOutput">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element ref="ns0:ResponseCode" minOccurs="0"/>
+                        <xs:element ref="ns0:ResponseText" minOccurs="0"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="GenricNSTibcoMessage">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element ref="ns0:TransactionId"/>
+                        <xs:element ref="ns0:TransDateTime" minOccurs="0"/>
+                        <xs:element ref="ns0:RequestType"/>
+                        <xs:element ref="ns0:RequestId"/>
+                        <xs:element ref="ns0:MSISDN"/>
+                        <xs:element ref="ns0:CalledNo" minOccurs="0"/>
+                        <xs:element ref="ns0:SMSText" minOccurs="0"/>
+                        <xs:element ref="ns0:MsgParam" minOccurs="0"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="MSISDN" type="xs:string"/>
+            <xs:element name="MsgParam">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element ref="ns0:Attribute" maxOccurs="unbounded"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="RequestId" type="xs:string"/>
+            <xs:element name="RequestType" type="xs:string"/>
+            <xs:element name="ResponseCode" type="xs:string"/>
+            <xs:element name="ResponseText" type="xs:string"/>
+            <xs:element name="SMSText" type="xs:string"/>
+            <xs:element name="TransDateTime" type="xs:string"/>
+            <xs:element name="TransactionId" type="xs:string"/>
+        </xs:schema>
+    </wsdl:types>
+    <wsdl:service name="Receive__Request__3HK">
+        <wsdl:port name="SOAPEventSource" binding="tns:SOAPEventSourceBinding">
+            <soap:address location="http://localhost:8054/Business_Process/3HK_Topup/Receive_Request_3HK"/>
+        </wsdl:port>
+    </wsdl:service>
+    <wsdl:portType name="Topup3HK">
+        <wsdl:operation name="Topup3HKOperation">
+            <wsdl:input message="tns:Request"/>
+            <wsdl:output message="tns:Response"/>
+        </wsdl:operation>
+    </wsdl:portType>
+    <wsdl:binding name="SOAPEventSourceBinding" type="tns:Topup3HK">
+        <soap:binding style="document" transport="http://schemas.xmlsoap.org/soap/http"/>
+        <wsdl:operation name="Topup3HKOperation">
+            <soap:operation style="document" soapAction="/Business_Process/3HK/3HK_Topup"/>
+            <wsdl:input>
+                <soap:body use="literal" parts="TopupRequest"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap:body use="literal" parts="TopupResponse"/>
+            </wsdl:output>
+        </wsdl:operation>
+    </wsdl:binding>
+    <wsdl:message name="Request">
+        <wsdl:part name="TopupRequest" element="ns0:GenricNSTibcoMessage"/>
+    </wsdl:message>
+    <wsdl:message name="Response">
+        <wsdl:part name="TopupResponse" element="ns0:GenericNSTibcoOutput"/>
+    </wsdl:message>
+</wsdl:definitions>
