@@ -1,263 +1,526 @@
 <?php
+// Note, this cannot be namespaced for the time being due to how CI works
+//namespace Restserver\Libraries;
+
+defined('BASEPATH') OR exit('No direct script access allowed');
+
 /**
  * Format class
- *
  * Help convert between various formats such as XML, JSON, CSV, etc.
  *
- * @author		Phil Sturgeon
- * @license		http://philsturgeon.co.uk/code/dbad-license
+ * @author    Phil Sturgeon, Chris Kacerguis, @softwarespot
+ * @license   http://www.dbad-license.org/
  */
 class Format {
 
-	// Array to convert
-	protected $_data = array();
+    /**
+     * Array output format
+     */
+    const ARRAY_FORMAT = 'array';
 
-	// View filename
-	protected $_from_type = null;
+    /**
+     * Comma Separated Value (CSV) output format
+     */
+    const CSV_FORMAT = 'csv';
 
-	/**
-	 * Returns an instance of the Format object.
-	 *
-	 *     echo $this->format->factory(array('foo' => 'bar'))->to_xml();
-	 *
-	 * @param   mixed  general date to be converted
-	 * @param   string  data format the file was provided in
-	 * @return  Factory
-	 */
-	public function factory($data, $from_type = null)
-	{
-		// Stupid stuff to emulate the "new static()" stuff in this libraries PHP 5.3 equivilent
-		$class = __CLASS__;
-		return new $class($data, $from_type);
-	}
+    /**
+     * Json output format
+     */
+    const JSON_FORMAT = 'json';
 
-	/**
-	 * Do not use this directly, call factory()
-	 */
-	public function __construct($data = null, $from_type = null)
-	{
-		get_instance()->load->helper('inflector');
-		
-		// If the provided data is already formatted we should probably convert it to an array
-		if ($from_type !== null)
-		{
-			if (method_exists($this, '_from_' . $from_type))
-			{
-				$data = call_user_func(array($this, '_from_' . $from_type), $data);
-			}
+    /**
+     * HTML output format
+     */
+    const HTML_FORMAT = 'html';
 
-			else
-			{
-				throw new Exception('Format class does not support conversion from "' . $from_type . '".');
-			}
-		}
+    /**
+     * PHP output format
+     */
+    const PHP_FORMAT = 'php';
 
-		$this->_data = $data;
-	}
+    /**
+     * Serialized output format
+     */
+    const SERIALIZED_FORMAT = 'serialized';
 
-	// FORMATING OUTPUT ---------------------------------------------------------
+    /**
+     * XML output format
+     */
+    const XML_FORMAT = 'xml';
 
-	public function to_array($data = null)
-	{
-		// If not just null, but nopthing is provided
-		if ($data === null and ! func_num_args())
-		{
-			$data = $this->_data;
-		}
+    /**
+     * Default format of this class
+     */
+    const DEFAULT_FORMAT = self::JSON_FORMAT; // Couldn't be DEFAULT, as this is a keyword
 
-		$array = array();
+    /**
+     * CodeIgniter instance
+     *
+     * @var object
+     */
+    private $_CI;
 
-		foreach ((array) $data as $key => $value)
-		{
-			if (is_object($value) or is_array($value))
-			{
-				$array[$key] = $this->to_array($value);
-			}
+    /**
+     * Data to parse
+     *
+     * @var mixed
+     */
+    protected $_data = [];
 
-			else
-			{
-				$array[$key] = $value;
-			}
-		}
+    /**
+     * Type to convert from
+     *
+     * @var string
+     */
+    protected $_from_type = NULL;
 
-		return $array;
-	}
+    /**
+     * DO NOT CALL THIS DIRECTLY, USE factory()
+     *
+     * @param NULL $data
+     * @param NULL $from_type
+     * @throws Exception
+     */
 
-	// Format XML for output
-	public function to_xml($data = null, $structure = null, $basenode = 'xml')
-	{
-		if ($data === null and ! func_num_args())
-		{
-			$data = $this->_data;
-		}
+    public function __construct($data = NULL, $from_type = NULL)
+    {
+        // Get the CodeIgniter reference
+        $this->_CI = &get_instance();
 
-		// turn off compatibility mode as simple xml throws a wobbly if you don't.
-		if (ini_get('zend.ze1_compatibility_mode') == 1)
-		{
-			ini_set('zend.ze1_compatibility_mode', 0);
-		}
+        // Load the inflector helper
+        $this->_CI->load->helper('inflector');
 
-		if ($structure === null)
-		{
-			$structure = simplexml_load_string("<?xml version='1.0' encoding='utf-8'?><$basenode />");
-		}
-
-		// Force it to be something useful
-		if ( ! is_array($data) AND ! is_object($data))
-		{
-			$data = (array) $data;
-		}
-
-		foreach ($data as $key => $value)
-		{
-			// no numeric keys in our xml please!
-			if (is_numeric($key))
+        // If the provided data is already formatted we should probably convert it to an array
+        if ($from_type !== NULL)
+        {
+            if (method_exists($this, '_from_'.$from_type))
             {
-                // make string key...           
+                $data = call_user_func([$this, '_from_'.$from_type], $data);
+            }
+            else
+            {
+                throw new Exception('Format class does not support conversion from "'.$from_type.'".');
+            }
+        }
+
+        // Set the member variable to the data passed
+        $this->_data = $data;
+    }
+
+    /**
+     * Create an instance of the format class
+     * e.g: echo $this->format->factory(['foo' => 'bar'])->to_csv();
+     *
+     * @param mixed $data Data to convert/parse
+     * @param string $from_type Type to convert from e.g. json, csv, html
+     *
+     * @return object Instance of the format class
+     */
+    public function factory($data, $from_type = NULL)
+    {
+        // $class = __CLASS__;
+        // return new $class();
+
+        return new static($data, $from_type);
+    }
+
+    // FORMATTING OUTPUT ---------------------------------------------------------
+
+    /**
+     * Format data as an array
+     *
+     * @param mixed|NULL $data Optional data to pass, so as to override the data passed
+     * to the constructor
+     * @return array Data parsed as an array; otherwise, an empty array
+     */
+    public function to_array($data = NULL)
+    {
+        // If no data is passed as a parameter, then use the data passed
+        // via the constructor
+        if ($data === NULL && func_num_args() === 0)
+        {
+            $data = $this->_data;
+        }
+
+        // Cast as an array if not already
+        if (is_array($data) === FALSE)
+        {
+            $data = (array) $data;
+        }
+
+        $array = [];
+        foreach ((array) $data as $key => $value)
+        {
+            if (is_object($value) === TRUE || is_array($value) === TRUE)
+            {
+                $array[$key] = $this->to_array($value);
+            }
+            else
+            {
+                $array[$key] = $value;
+            }
+        }
+
+        return $array;
+    }
+
+    /**
+     * Format data as XML
+     *
+     * @param mixed|NULL $data Optional data to pass, so as to override the data passed
+     * to the constructor
+     * @param NULL $structure
+     * @param string $basenode
+     * @return mixed
+     */
+    public function to_xml($data = NULL, $structure = NULL, $basenode = 'xml')
+    {
+        if ($data === NULL && func_num_args() === 0)
+        {
+            $data = $this->_data;
+        }
+
+        if ($structure === NULL)
+        {
+            $structure = simplexml_load_string("<?xml version='1.0' encoding='utf-8'?><$basenode />");
+        }
+
+        // Force it to be something useful
+        if (is_array($data) === FALSE && is_object($data) === FALSE)
+        {
+            $data = (array) $data;
+        }
+
+        foreach ($data as $key => $value)
+        {
+
+            //change false/true to 0/1
+            if (is_bool($value))
+            {
+                $value = (int) $value;
+            }
+
+            // no numeric keys in our xml please!
+            if (is_numeric($key))
+            {
+                // make string key...
                 $key = (singular($basenode) != $basenode) ? singular($basenode) : 'item';
             }
 
-			// replace anything not alpha numeric
-			$key = preg_replace('/[^a-z_\-0-9]/i', '', $key);
+            // replace anything not alpha numeric
+            $key = preg_replace('/[^a-z_\-0-9]/i', '', $key);
 
-            // if there is another array found recrusively call this function
-            if (is_array($value) || is_object($value))
+            if ($key === '_attributes' && (is_array($value) || is_object($value)))
+            {
+                $attributes = $value;
+                if (is_object($attributes))
+                {
+                    $attributes = get_object_vars($attributes);
+                }
+
+                foreach ($attributes as $attribute_name => $attribute_value)
+                {
+                    $structure->addAttribute($attribute_name, $attribute_value);
+                }
+            }
+            // if there is another array found recursively call this function
+            elseif (is_array($value) || is_object($value))
             {
                 $node = $structure->addChild($key);
 
-                // recrusive call.
+                // recursive call.
                 $this->to_xml($value, $node, $key);
             }
-
             else
             {
                 // add single node.
-				$value = htmlspecialchars(html_entity_decode($value, ENT_QUOTES, 'UTF-8'), ENT_QUOTES, "UTF-8");
+                $value = htmlspecialchars(html_entity_decode($value, ENT_QUOTES, 'UTF-8'), ENT_QUOTES, 'UTF-8');
 
-				$structure->addChild($key, $value);
-			}
-		}
+                $structure->addChild($key, $value);
+            }
+        }
 
-		return $structure->asXML();
-	}
+        return $structure->asXML();
+    }
 
-	// Format HTML for output
-	public function to_html()
-	{
-		$data = $this->_data;
-		
-		// Multi-dimentional array
-		if (isset($data[0]))
-		{
-			$headings = array_keys($data[0]);
-		}
+    /**
+     * Format data as HTML
+     *
+     * @param mixed|NULL $data Optional data to pass, so as to override the data passed
+     * to the constructor
+     * @return mixed
+     */
+    public function to_html($data = NULL)
+    {
+        // If no data is passed as a parameter, then use the data passed
+        // via the constructor
+        if ($data === NULL && func_num_args() === 0)
+        {
+            $data = $this->_data;
+        }
 
-		// Single array
-		else
-		{
-			$headings = array_keys($data);
-			$data = array($data);
-		}
+        // Cast as an array if not already
+        if (is_array($data) === FALSE)
+        {
+            $data = (array) $data;
+        }
 
-		$ci = get_instance();
-		$ci->load->library('table');
+        // Check if it's a multi-dimensional array
+        if (isset($data[0]) && count($data) !== count($data, COUNT_RECURSIVE))
+        {
+            // Multi-dimensional array
+            $headings = array_keys($data[0]);
+        }
+        else
+        {
+            // Single array
+            $headings = array_keys($data);
+            $data = [$data];
+        }
 
-		$ci->table->set_heading($headings);
+        // Load the table library
+        $this->_CI->load->library('table');
 
-		foreach ($data as &$row)
-		{
-			$ci->table->add_row($row);
-		}
+        $this->_CI->table->set_heading($headings);
 
-		return $ci->table->generate();
-	}
+        foreach ($data as $row)
+        {
+            // Suppressing the "array to string conversion" notice
+            // Keep the "evil" @ here
+            $row = @array_map('strval', $row);
 
-	// Format HTML for output
-	public function to_csv()
-	{
-		$data = $this->_data;
+            $this->_CI->table->add_row($row);
+        }
 
-		// Multi-dimentional array
-		if (isset($data[0]))
-		{
-			$headings = array_keys($data[0]);
-		}
+        return $this->_CI->table->generate();
+    }
 
-		// Single array
-		else
-		{
-			$headings = array_keys($data);
-			$data = array($data);
-		}
+    /**
+     * @link http://www.metashock.de/2014/02/create-csv-file-in-memory-php/
+     * @param mixed|NULL $data Optional data to pass, so as to override the data passed
+     * to the constructor
+     * @param string $delimiter The optional delimiter parameter sets the field
+     * delimiter (one character only). NULL will use the default value (,)
+     * @param string $enclosure The optional enclosure parameter sets the field
+     * enclosure (one character only). NULL will use the default value (")
+     * @return string A csv string
+     */
+    public function to_csv($data = NULL, $delimiter = ',', $enclosure = '"')
+    {
+        // Use a threshold of 1 MB (1024 * 1024)
+        $handle = fopen('php://temp/maxmemory:1048576', 'w');
+        if ($handle === FALSE)
+        {
+            return NULL;
+        }
 
-		$output = implode(',', $headings).PHP_EOL;
-		foreach ($data as &$row)
-		{
-			$output .= '"'.implode('","', $row).'"'.PHP_EOL;
-		}
+        // If no data is passed as a parameter, then use the data passed
+        // via the constructor
+        if ($data === NULL && func_num_args() === 0)
+        {
+            $data = $this->_data;
+        }
 
-		return $output;
-	}
+        // If NULL, then set as the default delimiter
+        if ($delimiter === NULL)
+        {
+            $delimiter = ',';
+        }
 
-	// Encode as JSON
-	public function to_json()
-	{
-		return json_encode($this->_data);
-	}
+        // If NULL, then set as the default enclosure
+        if ($enclosure === NULL)
+        {
+            $enclosure = '"';
+        }
 
-	// Encode as Serialized array
-	public function to_serialized()
-	{
-		return serialize($this->_data);
-	}
-	
-	// Output as a string representing the PHP structure
-	public function to_php()
-	{
-	    return var_export($this->_data, TRUE);
-	}
+        // Cast as an array if not already
+        if (is_array($data) === FALSE)
+        {
+            $data = (array) $data;
+        }
 
-	// Format XML for output
-	protected function _from_xml($string)
-	{
-		return $string ? (array) simplexml_load_string($string, 'SimpleXMLElement', LIBXML_NOCDATA) : array();
-	}
+        // Check if it's a multi-dimensional array
+        if (isset($data[0]) && count($data) !== count($data, COUNT_RECURSIVE))
+        {
+            // Multi-dimensional array
+            $headings = array_keys($data[0]);
+        }
+        else
+        {
+            // Single array
+            $headings = array_keys($data);
+            $data = [$data];
+        }
 
-	// Format HTML for output
-	// This function is DODGY! Not perfect CSV support but works with my REST_Controller
-	protected function _from_csv($string)
-	{
-		$data = array();
+        // Apply the headings
+        fputcsv($handle, $headings, $delimiter, $enclosure);
 
-		// Splits
-		$rows = explode("\n", trim($string));
-		$headings = explode(',', array_shift($rows));
-		foreach ($rows as $row)
-		{
-			// The substr removes " from start and end
-			$data_fields = explode('","', trim(substr($row, 1, -1)));
+        foreach ($data as $record)
+        {
+            // If the record is not an array, then break. This is because the 2nd param of
+            // fputcsv() should be an array
+            if (is_array($record) === FALSE)
+            {
+                break;
+            }
 
-			if (count($data_fields) == count($headings))
-			{
-				$data[] = array_combine($headings, $data_fields);
-			}
-		}
+            // Suppressing the "array to string conversion" notice.
+            // Keep the "evil" @ here.
+            $record = @ array_map('strval', $record);
 
-		return $data;
-	}
+            // Returns the length of the string written or FALSE
+            fputcsv($handle, $record, $delimiter, $enclosure);
+        }
 
-	// Encode as JSON
-	private function _from_json($string)
-	{
-		return json_decode(trim($string));
-	}
+        // Reset the file pointer
+        rewind($handle);
 
-	// Encode as Serialized array
-	private function _from_serialize($string)
-	{
-		return unserialize(trim($string));
-	}
+        // Retrieve the csv contents
+        $csv = stream_get_contents($handle);
 
+        // Close the handle
+        fclose($handle);
+
+        return $csv;
+    }
+
+    /**
+     * Encode data as json
+     *
+     * @param mixed|NULL $data Optional data to pass, so as to override the data passed
+     * to the constructor
+     * @return string Json representation of a value
+     */
+    public function to_json($data = NULL)
+    {
+        // If no data is passed as a parameter, then use the data passed
+        // via the constructor
+        if ($data === NULL && func_num_args() === 0)
+        {
+            $data = $this->_data;
+        }
+
+        // Get the callback parameter (if set)
+        $callback = $this->_CI->input->get('callback');
+
+        if (empty($callback) === TRUE)
+        {
+            return json_encode($data);
+        }
+
+        // We only honour a jsonp callback which are valid javascript identifiers
+        elseif (preg_match('/^[a-z_\$][a-z0-9\$_]*(\.[a-z_\$][a-z0-9\$_]*)*$/i', $callback))
+        {
+            // Return the data as encoded json with a callback
+            return $callback.'('.json_encode($data).');';
+        }
+
+        // An invalid jsonp callback function provided.
+        // Though I don't believe this should be hardcoded here
+        $data['warning'] = 'INVALID JSONP CALLBACK: '.$callback;
+
+        return json_encode($data);
+    }
+
+    /**
+     * Encode data as a serialized array
+     *
+     * @param mixed|NULL $data Optional data to pass, so as to override the data passed
+     * to the constructor
+     * @return string Serialized data
+     */
+    public function to_serialized($data = NULL)
+    {
+        // If no data is passed as a parameter, then use the data passed
+        // via the constructor
+        if ($data === NULL && func_num_args() === 0)
+        {
+            $data = $this->_data;
+        }
+
+        return serialize($data);
+    }
+
+    /**
+     * Format data using a PHP structure
+     *
+     * @param mixed|NULL $data Optional data to pass, so as to override the data passed
+     * to the constructor
+     * @return mixed String representation of a variable
+     */
+    public function to_php($data = NULL)
+    {
+        // If no data is passed as a parameter, then use the data passed
+        // via the constructor
+        if ($data === NULL && func_num_args() === 0)
+        {
+            $data = $this->_data;
+        }
+
+        return var_export($data, TRUE);
+    }
+
+    // INTERNAL FUNCTIONS
+
+    /**
+     * @param string $data XML string
+     * @return array XML element object; otherwise, empty array
+     */
+    protected function _from_xml($data)
+    {
+        return $data ? (array) simplexml_load_string($data, 'SimpleXMLElement', LIBXML_NOCDATA) : [];
+    }
+
+    /**
+     * @param string $data CSV string
+     * @param string $delimiter The optional delimiter parameter sets the field
+     * delimiter (one character only). NULL will use the default value (,)
+     * @param string $enclosure The optional enclosure parameter sets the field
+     * enclosure (one character only). NULL will use the default value (")
+     * @return array A multi-dimensional array with the outer array being the number of rows
+     * and the inner arrays the individual fields
+     */
+    protected function _from_csv($data, $delimiter = ',', $enclosure = '"')
+    {
+        // If NULL, then set as the default delimiter
+        if ($delimiter === NULL)
+        {
+            $delimiter = ',';
+        }
+
+        // If NULL, then set as the default enclosure
+        if ($enclosure === NULL)
+        {
+            $enclosure = '"';
+        }
+
+        return str_getcsv($data, $delimiter, $enclosure);
+    }
+
+    /**
+     * @param string $data Encoded json string
+     * @return mixed Decoded json string with leading and trailing whitespace removed
+     */
+    protected function _from_json($data)
+    {
+        return json_decode(trim($data));
+    }
+
+    /**
+     * @param string $data Data to unserialize
+     * @return mixed Unserialized data
+     */
+    protected function _from_serialize($data)
+    {
+        return unserialize(trim($data));
+    }
+
+    /**
+     * @param string $data Data to trim leading and trailing whitespace
+     * @return string Data with leading and trailing whitespace removed
+     */
+    protected function _from_php($data)
+    {
+        return trim($data);
+    }
 }
-
-/* End of file format.php */
