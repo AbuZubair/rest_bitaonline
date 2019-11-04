@@ -196,7 +196,8 @@ class Login extends CI_Controller {
 				'security_code' => rand(9, 9999),
 			);
 
-
+			if(isset($_POST['level_id']))$dataexc['level_id'] = $this->getInput('level_id');
+				
 			/*save post data*/
 			$newId = $this->login_model->save_acc_register($dataexc);
 
