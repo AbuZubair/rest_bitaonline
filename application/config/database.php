@@ -83,7 +83,7 @@ $db['default'] = array(
 
 	'password' => '',
 
-	'database' => 'jkt_limousine',
+	'database' => 'hydromart',
 
 	'dbdriver' => 'mysqli',
 

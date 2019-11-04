@@ -10,7 +10,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 | Set to force the use of HTTPS for REST API calls
 |
 */
-$config['force_https'] = false;
+$config['force_https'] = FALSE;
 
 /*
 |--------------------------------------------------------------------------
@@ -82,7 +82,7 @@ $config['rest_message_field_name'] = 'error';
 | Should we enable emulation of the request (e.g. used in Mootools request)
 |
 */
-$config['enable_emulate_request'] = true;
+$config['enable_emulate_request'] = TRUE;
 
 /*
 |--------------------------------------------------------------------------
@@ -104,13 +104,13 @@ $config['rest_realm'] = 'REST API';
 | Set to specify the REST API requires to be logged in
 |
 | FALSE     No login required
-| 'basic'   Unsecured login
-| 'digest'  More secured login
+| 'basic'   Unsecure login
+| 'digest'  More secure login
 | 'session' Check for a PHP session variable. See 'auth_source' to set the
 |           authorization key
 |
 */
-$config['rest_auth'] = 'basic';
+$config['rest_auth'] = FALSE;
 
 /*
 |--------------------------------------------------------------------------
@@ -137,8 +137,7 @@ $config['auth_source'] = 'ldap';
 | requests etc), set to TRUE;
 |
 */
-$config['allow_auth_and_keys'] = true;
-$config['strict_api_and_auth'] = true; // force the use of both api and auth before a valid api request is made
+$config['allow_auth_and_keys'] = TRUE;
 
 /*
 |--------------------------------------------------------------------------
@@ -190,7 +189,7 @@ $config['auth_library_function'] = '';
 
 /*
 |--------------------------------------------------------------------------
-| Override auth types for specific 'class/method/HTTP method'
+| Override auth types for specfic 'class/method/HTTP method'
 |--------------------------------------------------------------------------
 |
 | example:
@@ -215,34 +214,24 @@ $config['rest_valid_logins'] = ['admin' => '1234'];
 
 /*
 |--------------------------------------------------------------------------
-| Global IP White-listing
+| Global IP Whitelisting
 |--------------------------------------------------------------------------
 |
-| Limit connections to your REST server to White-listed IP addresses
+| Limit connections to your REST server to whitelisted IP addresses
 |
 | Usage:
 | 1. Set to TRUE and select an auth option for extreme security (client's IP
-|    address must be in white-list and they must also log in)
-| 2. Set to TRUE with auth set to FALSE to allow White-listed IPs access with no login
-| 3. Set to FALSE but set 'auth_override_class_method' to 'white-list' to
-|    restrict certain methods to IPs in your white-list
+|    address must be in whitelist and they must also log in)
+| 2. Set to TRUE with auth set to FALSE to allow whitelisted IPs access with no login
+| 3. Set to FALSE but set 'auth_override_class_method' to 'whitelist' to
+|    restrict certain methods to IPs in your whitelist
 |
 */
-$config['rest_ip_whitelist_enabled'] = false;
+$config['rest_ip_whitelist_enabled'] = FALSE;
 
 /*
 |--------------------------------------------------------------------------
-| REST Handle Exceptions
-|--------------------------------------------------------------------------
-|
-| Handle exceptions caused by the controller
-|
-*/
-$config['rest_handle_exceptions'] = true;
-
-/*
-|--------------------------------------------------------------------------
-| REST IP White-list
+| REST IP Whitelist
 |--------------------------------------------------------------------------
 |
 | Limit connections to your REST server with a comma separated
@@ -266,7 +255,7 @@ $config['rest_ip_whitelist'] = '';
 | 1. Set to TRUE and add any IP address to 'rest_ip_blacklist'
 |
 */
-$config['rest_ip_blacklist_enabled'] = false;
+$config['rest_ip_blacklist_enabled'] = FALSE;
 
 /*
 |--------------------------------------------------------------------------
@@ -324,7 +313,7 @@ $config['rest_keys_table'] = 'keys';
 |   ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 |
 */
-$config['rest_enable_keys'] = false;
+$config['rest_enable_keys'] = TRUE;
 
 /*
 |--------------------------------------------------------------------------
@@ -336,6 +325,7 @@ $config['rest_enable_keys'] = false;
 |
 */
 $config['rest_key_column'] = 'key';
+$config['rest_key_id_column'] = 'user_id';
 
 /*
 |--------------------------------------------------------------------------
@@ -377,7 +367,8 @@ $config['rest_key_length'] = 40;
 | 2012/06/12. See RFC 6648 specification for more details
 |
 */
-$config['rest_key_name'] = 'X-API-KEY';
+$config['rest_key_name'] = 'api_auth_key';
+$config['rest_key_user_id'] = 'api_auth_id';
 
 /*
 |--------------------------------------------------------------------------
@@ -404,7 +395,7 @@ $config['rest_key_name'] = 'X-API-KEY';
 |   ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 |
 */
-$config['rest_enable_logging'] = false;
+$config['rest_enable_logging'] = FALSE;
 
 /*
 |--------------------------------------------------------------------------
@@ -437,7 +428,7 @@ $config['rest_logs_table'] = 'logs';
 |    ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 |
 */
-$config['rest_enable_access'] = false;
+$config['rest_enable_access'] = FALSE;
 
 /*
 |--------------------------------------------------------------------------
@@ -459,7 +450,7 @@ $config['rest_access_table'] = 'access';
 | Set to FALSE to log as serialized PHP
 |
 */
-$config['rest_logs_json_params'] = false;
+$config['rest_logs_json_params'] = FALSE;
 
 /*
 |--------------------------------------------------------------------------
@@ -483,11 +474,11 @@ $config['rest_logs_json_params'] = false;
 | To specify the limits within the controller's __construct() method, add per-method
 | limits with:
 |
-|       $this->methods['METHOD_NAME']['limit'] = [NUM_REQUESTS_PER_HOUR];
+|       $this->method['METHOD_NAME']['limit'] = [NUM_REQUESTS_PER_HOUR];
 |
 | See application/controllers/api/example.php for examples
 */
-$config['rest_enable_limits'] = false;
+$config['rest_enable_limits'] = FALSE;
 
 /*
 |--------------------------------------------------------------------------
@@ -509,7 +500,7 @@ $config['rest_limits_table'] = 'limits';
 | Only do this if you are using the $this->rest_format or /format/xml in URLs
 |
 */
-$config['rest_ignore_http_accept'] = false;
+$config['rest_ignore_http_accept'] = FALSE;
 
 /*
 |--------------------------------------------------------------------------
@@ -524,7 +515,7 @@ $config['rest_ignore_http_accept'] = false;
 | Hint: This is good for production environments
 |
 */
-$config['rest_ajax_only'] = false;
+$config['rest_ajax_only'] = FALSE;
 
 /*
 |--------------------------------------------------------------------------
@@ -546,7 +537,7 @@ $config['rest_language'] = 'english';
 | will access it through a browser
 |
 */
-$config['check_cors'] = false;
+$config['check_cors'] = FALSE;
 
 /*
 |--------------------------------------------------------------------------
@@ -590,7 +581,7 @@ $config['allowed_cors_methods'] = [
 | source domain
 |
 */
-$config['allow_any_cors_domain'] = false;
+$config['allow_any_cors_domain'] = FALSE;
 
 /*
 |--------------------------------------------------------------------------
@@ -604,24 +595,3 @@ $config['allow_any_cors_domain'] = false;
 |
 */
 $config['allowed_cors_origins'] = [];
-
-/*
-|--------------------------------------------------------------------------
-| CORS Forced Headers
-|--------------------------------------------------------------------------
-|
-| If using CORS checks, always include the headers and values specified here 
-| in the OPTIONS client preflight.
-| Example:
-| $config['forced_cors_headers'] = [
-|   'Access-Control-Allow-Credentials' => 'true'
-| ];
-|
-| Added because of how Sencha Ext JS framework requires the header
-| Access-Control-Allow-Credentials to be set to true to allow the use of
-| credentials in the REST Proxy. 
-| See documentation here:
-| http://docs.sencha.com/extjs/6.5.2/classic/Ext.data.proxy.Rest.html#cfg-withCredentials
-|
-*/
-$config['forced_cors_headers'] = [];
