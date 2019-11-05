@@ -119,12 +119,12 @@ class Login extends CI_Controller {
             /*clear token existing or before*/
             $this->login_model->clear_token($result->user_id);
 
-            if($this->login_model->get_user_profile($result->user_id) != false){
-
-				$user_profile = $this->login_model->get_user_profile($result->user_id);
+			$profile = $this->login_model->get_user_profile($result->user_id);
+            if($profile)$user_profile = $profile;
 				
-            }
-
+			$menu = $this->login_model->get_menu($result->level_id);
+			if($menu)$menu_user = $menu;
+			
 			/*update last logon user*/
 			$this->login_model->last_logon($result->username,$result->password);
 			
@@ -136,7 +136,8 @@ class Login extends CI_Controller {
             $data = array(
                         'logged' => TRUE, 
                         'user' => $result, 
-                        'user_profile' => isset($user_profile)?$user_profile:[]
+						'user_profile' => isset($user_profile)?$user_profile:[],
+						'menu' => isset($menu_user)?$menu_user:[],
                     );
 
             $response = array(

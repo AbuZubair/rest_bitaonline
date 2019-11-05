@@ -84,7 +84,82 @@ class Login_model extends CI_Model {
         }else{
             return false;
         }
-	}
+    }
+    
+    public function get_menu_($level_id){
+        
+        $this->db->select('a.*');
+        $this->db->from('app_program a');
+        $this->db->join('user_role b','b.program_id = a.program_id');
+        $this->db->where(array('a.is_active' => 'Y','b.level_id' => $level_id));
+        $this->db->order_by('a.counter','ASC');
+        $query = $this->db->get()->result();
+             
+        if(!empty($query)){
+            return $query;
+        }else{
+            return false;
+        }
+    }
+    
+
+    public function get_menu($level_id){
+        $getData = [];
+        $qry = "SELECT app_program.* FROM user_role
+                LEFT JOIN app_program ON app_program.program_id=user_role.program_id  
+                WHERE user_role.level_id IN (".$level_id.") AND app_program.level_program=1 order by counter ASC";
+        $res = $this->db->query($qry)->result_array();
+        
+        foreach ($res as $key => $value)
+        {
+            $result[] = array(
+                'program_id' => $value['program_id'],
+                'program_name' => $value['program_name'],
+                'program_parent_id' => $value['program_parent_id'],
+                'link' => $value['link'],
+                'level_program' => $value['level_program'],
+                'counter' => $value['counter'],
+                'is_active' => $value['is_active']
+            );
+        }
+
+        foreach ($result as $k => $v) {
+            $submenu = $this->search_submenu_by_group($v['program_id'], $level_id);
+            $arr = array(
+                'program_id' => $v['program_id'],
+                'program_name' => $v['program_name'],
+                'program_parent_id' => $v['program_parent_id'],
+                'link' => $v['link'],
+                'level_program' => $v['level_program'],
+                'counter' => $v['counter'],
+                'is_active' => $v['is_active'],
+                'submenu' => $submenu
+            );
+           // $arr['submenu'] = $submenu;
+            $getData[] = $arr;
+        }
+
+        return $getData;
+    }
+
+    public function search_submenu_by_group($program_id, $level_id){
+        $db = $this->load->database('default', TRUE);
+        $sess = $this->load->library('session');
+        $qry = "SELECT app_program.* FROM user_role
+                LEFT JOIN app_program ON app_program.program_id=user_role.program_id  
+                WHERE user_role.level_id IN (".$level_id.") AND app_program.program_parent_id='".$program_id."' order by counter ASC";
+        return $db->query($qry)->result();
+    }
+
+
+
+
+
+
+
+
+
+
 	
 	public function get_key($user_id)
 	{
