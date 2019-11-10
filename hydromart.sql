@@ -11,11 +11,6 @@
 /*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
 /*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
 
-
--- Dumping database structure for hydromart
-CREATE DATABASE IF NOT EXISTS `hydromart` /*!40100 DEFAULT CHARACTER SET latin1 COLLATE latin1_general_ci */;
-USE `hydromart`;
-
 -- Dumping structure for table hydromart.app_program
 CREATE TABLE IF NOT EXISTS `app_program` (
   `program_id` int(11) NOT NULL AUTO_INCREMENT,
@@ -29,7 +24,7 @@ CREATE TABLE IF NOT EXISTS `app_program` (
   PRIMARY KEY (`program_id`) USING BTREE
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_general_ci ROW_FORMAT=DYNAMIC;
 
--- Dumping data for table hydromart.app_program: ~6 rows (approximately)
+-- Dumping data for table hydromart.app_program: ~13 rows (approximately)
 DELETE FROM `app_program`;
 /*!40000 ALTER TABLE `app_program` DISABLE KEYS */;
 INSERT INTO `app_program` (`program_id`, `program_name`, `program_parent_id`, `link`, `level_program`, `counter`, `is_active`, `icon`) VALUES
@@ -38,7 +33,14 @@ INSERT INTO `app_program` (`program_id`, `program_name`, `program_parent_id`, `l
 	(3, 'Bonus and Rating', NULL, '', 1, 3, 'Y', 'fa fa-money'),
 	(4, 'Quotation', NULL, '', 1, 4, 'Y', 'fa fa-money'),
 	(5, 'Payment Status', NULL, '', 1, 5, 'Y', 'fa fa-money'),
-	(6, 'Product', NULL, '', 1, 6, 'Y', 'fa fa-money');
+	(6, 'Product', NULL, '', 1, 6, 'Y', 'fa fa-money'),
+	(7, 'Edit Profile', '1', '', 2, 1, 'Y', 'create'),
+	(8, 'User', '2', '', 2, 1, 'Y', 'contacts'),
+	(9, 'Create User', '2', '', 2, 2, 'Y', 'person-add'),
+	(10, 'Bonus', '3', '', 2, 1, 'Y', 'ribbon'),
+	(11, 'Rating', '3', '', 2, 2, 'Y', 'star'),
+	(12, 'Products', '6', '', 2, 1, 'Y', 'pricetags'),
+	(13, 'Create Product', '6', '', 2, 2, 'Y', 'add-circle');
 /*!40000 ALTER TABLE `app_program` ENABLE KEYS */;
 
 -- Dumping structure for table hydromart.chat
@@ -8074,21 +8076,34 @@ CREATE TABLE IF NOT EXISTS `user_role` (
   `role` varchar(50) COLLATE latin1_general_ci NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_general_ci;
 
--- Dumping data for table hydromart.user_role: ~9 rows (approximately)
+-- Dumping data for table hydromart.user_role: ~24 rows (approximately)
 DELETE FROM `user_role`;
 /*!40000 ALTER TABLE `user_role` DISABLE KEYS */;
 INSERT INTO `user_role` (`level_id`, `program_id`, `role`) VALUES
-	('2', '3', 'C,R,U,D'),
-	('1', '3', 'C,R,U,D'),
+	('2', '10', 'C,R,U,D'),
+	('1', '10', 'C,R,U,D'),
 	('1', '1', 'C,R,U,D'),
 	('3', '1', 'C,R,U,D'),
 	('1', '4', 'C,R,U,D'),
 	('1', '5', 'C,R,U,D'),
-	('1', '6', 'C,R,U,D'),
 	('1', '2', 'C,R,U,D'),
 	('2', '5', 'C,R,U,D'),
 	('2', '6', 'C,R,U,D'),
-	('2', '1', 'C,R,U,D');
+	('2', '1', 'C,R,U,D'),
+	('1', '7', 'C,R,U,D'),
+	('2', '7', 'C,R,U,D'),
+	('3', '7', 'C,R,U,D'),
+	('1', '8', 'C,R,U,D'),
+	('1', '9', 'C,R,U,D'),
+	('1', '3', 'C,R,U,D'),
+	('2', '3', 'C,R,U,D'),
+	('1', '6', 'C,R,U,D'),
+	('2', '11', 'C,R,U,D'),
+	('1', '12', 'C,R,U,D'),
+	('2', '12', 'C,R,U,D'),
+	('1', '13', 'C,R,U,D'),
+	('2', '13', 'C,R,U,D'),
+	('1', '11', 'C,R,U,D');
 /*!40000 ALTER TABLE `user_role` ENABLE KEYS */;
 
 -- Dumping structure for table hydromart.villages
