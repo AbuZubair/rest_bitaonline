@@ -13,6 +13,8 @@ class Profile extends REST_Controller {
 
 	public function process_profile_user_post(){
 
+        // print_r($this->post());die;
+
         // form validation
         $fullname = $this->post('fullname');
         $pob = $this->post('pob');
@@ -46,25 +48,25 @@ class Profile extends REST_Controller {
                 'phone' => $this->regex->_genRegex($phone,'RGXQSL'),
                 'gender' => $this->regex->_genRegex($gender,'RGXAZ'),
                 'no_ktp' => $this->regex->_genRegex($no_ktp,'RGXQSL'),
-                'user_id' => $this->regex->_genRegex($user_id,'RGXINT'),
                 'path_photo' => $this->regex->_genRegex($path_photo,'RGXQSL'),
             );
     
-            $user_profile = $this->db->get_where('user_profile',array('user_id' => $dataexc['user_id'] ) )->num_rows();
+            $user_profile = $this->db->get_where('user_profile',array('user_id' => $user_id ) )->num_rows();
     
             if($user_profile == 0){
                 
+                $dataexc['user_id'] =  $this->regex->_genRegex($user_id,'RGXINT');
                 /*save post data*/
                 $newId = $this->Profile_model->save('user_profile',$dataexc);
     
-                $this->Profile_model->update('user', array('fullname' => $dataexc['fullname'],'phone_no' => $dataexc['phone']), array('user_id' => $dataexc['user_id']));
+                $this->Profile_model->update('user', array('fullname' => $dataexc['fullname'],'phone_no' => $dataexc['phone']), array('user_id' => $user_id));
             }else{
 
                 $dataexc['updated_date'] = date('Y-m-d H:i:s');
     
-                $this->Profile_model->update_profile_user($dataexc);
+                $this->Profile_model->update_profile_user($dataexc, $user_id);
     
-                $this->Profile_model->update('user', array('fullname' => $dataexc['fullname'],'phone_no' => $dataexc['phone']), array('user_id' => $dataexc['user_id']));
+                $this->Profile_model->update('user', array('fullname' => $dataexc['fullname'],'phone_no' => $dataexc['phone']), array('user_id' => $user_id));
             }
     
             if ($this->db->trans_status() === FALSE)

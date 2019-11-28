@@ -22,7 +22,9 @@ class Message extends REST_Controller {
 			}
 
 			$unread = $this->master->thousandsCurrencyFormat($sum_unread);
-		}
+		}else{
+            $data = $this->Message_model->create_room_by_id($this->get('q'));
+        }
                
 		
 		$resp = array(

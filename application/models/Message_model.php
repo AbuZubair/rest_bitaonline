@@ -20,7 +20,14 @@ class Message_model extends CI_Model {
 	{
 		$this->db->update($table, $data, $where);
 		return $this->db->affected_rows();
-	}
+    }
+    
+    public function create_room_by_id($q)
+    {
+        $this->db->insert('room_chat',array('room_participant1_id'=>$q, 'room_participant2_id' => 1));
+
+        $this->get_room_by_id($q);
+    }
  
     public function get_room_by_id($q)
     {

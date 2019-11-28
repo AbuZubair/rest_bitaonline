@@ -11,6 +11,11 @@
 /*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
 /*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
 
+
+-- Dumping database structure for hydromart
+CREATE DATABASE IF NOT EXISTS `hydromart` /*!40100 DEFAULT CHARACTER SET latin1 COLLATE latin1_general_ci */;
+USE `hydromart`;
+
 -- Dumping structure for table hydromart.app_program
 CREATE TABLE IF NOT EXISTS `app_program` (
   `program_id` int(11) NOT NULL AUTO_INCREMENT,
@@ -34,8 +39,8 @@ INSERT INTO `app_program` (`program_id`, `program_name`, `program_parent_id`, `l
 	(4, 'Quotation', NULL, '', 1, 4, 'Y', 'fa fa-money'),
 	(5, 'Payment Status', NULL, '', 1, 5, 'Y', 'fa fa-money'),
 	(6, 'Product', NULL, '', 1, 6, 'Y', 'fa fa-money'),
-	(7, 'Edit Profile', '1', '', 2, 1, 'Y', 'create'),
-	(8, 'User', '2', '', 2, 1, 'Y', 'contacts'),
+	(7, 'Edit Profile', '1', 'UserprofilePage', 2, 1, 'Y', 'create'),
+	(8, 'User', '2', 'UserPage', 2, 1, 'Y', 'contacts'),
 	(9, 'Create User', '2', '', 2, 2, 'Y', 'person-add'),
 	(10, 'Bonus', '3', '', 2, 1, 'Y', 'ribbon'),
 	(11, 'Rating', '3', '', 2, 2, 'Y', 'star'),
@@ -68,7 +73,10 @@ INSERT INTO `chat` (`chat_id`, `chat_sender_id`, `chat_receiver_id`, `chat_conte
 	(101, 57, 58, 'Tiga', '2019-03-07 12:52:38', 'Y', 21),
 	(102, 83, 80, 'Hai maaqiii', '2019-03-13 21:12:40', 'Y', 22),
 	(103, 57, 58, 'Abc\n\n123\n\n\n456\n\n\n789', '2019-03-15 20:27:55', 'Y', 21),
-	(104, 57, 58, 'tes', '2019-03-18 07:33:52', 'Y', 21);
+	(104, 57, 58, 'tes', '2019-03-18 07:33:52', 'Y', 21),
+	(105, 0, 1, 'tes', '2019-11-28 13:58:41', 'N', 23),
+	(106, 0, 1, 'y', '2019-11-28 14:00:16', 'N', 24),
+	(107, 10, 1, 'tew', '2019-11-28 14:01:11', 'N', 25);
 /*!40000 ALTER TABLE `chat` ENABLE KEYS */;
 
 -- Dumping structure for table hydromart.districts
@@ -7319,8 +7327,8 @@ CREATE TABLE IF NOT EXISTS `keys` (
 DELETE FROM `keys`;
 /*!40000 ALTER TABLE `keys` DISABLE KEYS */;
 INSERT INTO `keys` (`id`, `user_id`, `key`, `level`, `ignore_limits`, `is_private_key`, `ip_addresses`, `date_created`) VALUES
-	(1, 1, '25b79809dbe795d212dd2699a0d04add7768d4a1', 1, 0, 0, '%', '2019-11-03 00:06:29'),
-	(5, 10, '23bf3c343f77913b068c358af04abe4e475a1a70', 1, 0, 0, '::1', '2019-11-02 22:33:32'),
+	(1, 1, 'a21b87aa22fbf4581734663cf1fb9b1ba7a0ecc8', 1, 0, 0, '%', '2019-11-28 08:43:54'),
+	(5, 10, 'e1c56a0f2b81fe0d248fb20d0207a37b8c1b2e16', 1, 0, 0, '::1', '2019-11-28 12:52:01'),
 	(6, 11, 'e6460e28239b03af105a5dc0b6d30857e24c47b3', 1, 0, 0, '::1', '2019-11-02 22:43:24'),
 	(7, 12, '391ef029d1aeca97a864d2c5ce1c3641902c0b5d', 1, 0, 0, '::1', '2019-11-02 22:44:33'),
 	(8, 13, '1be7bd6ce645c64c90a574f386684fd60f6252d8', 1, 0, 0, '::1', '2019-11-02 22:49:06'),
@@ -7356,6 +7364,11 @@ CREATE TABLE IF NOT EXISTS `product` (
   `name` varchar(400) COLLATE latin1_general_ci DEFAULT NULL,
   `price` decimal(50,2) NOT NULL,
   `img_url` varchar(400) COLLATE latin1_general_ci DEFAULT NULL,
+  `is_active` enum('Y','N') COLLATE latin1_general_ci DEFAULT 'Y',
+  `created_date` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `created_by` varchar(255) COLLATE latin1_general_ci DEFAULT NULL,
+  `updated_date` timestamp NULL DEFAULT '0000-00-00 00:00:00',
+  `updated_by` varchar(255) COLLATE latin1_general_ci DEFAULT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_general_ci;
 
@@ -7958,7 +7971,8 @@ DELETE FROM `room_chat`;
 INSERT INTO `room_chat` (`room_id`, `room_participant1_id`, `room_participant2_id`, `is_deleted`, `created_date`, `updated_date`) VALUES
 	(20, 58, 74, 'N', '2019-03-06 19:50:33', '0000-00-00 00:00:00'),
 	(21, 57, 58, 'N', '2019-03-18 07:33:52', '2019-03-18 07:33:52'),
-	(22, 83, 80, 'N', '2019-03-13 21:12:40', '0000-00-00 00:00:00');
+	(22, 83, 80, 'N', '2019-03-13 21:12:40', '0000-00-00 00:00:00'),
+	(25, 10, 1, 'N', '2019-11-28 14:01:11', '2019-11-28 14:01:11');
 /*!40000 ALTER TABLE `room_chat` ENABLE KEYS */;
 
 -- Dumping structure for table hydromart.tmp_global_reference
@@ -8019,8 +8033,8 @@ CREATE TABLE IF NOT EXISTS `user` (
 DELETE FROM `user`;
 /*!40000 ALTER TABLE `user` DISABLE KEYS */;
 INSERT INTO `user` (`user_id`, `username`, `password`, `fullname`, `phone_no`, `level_id`, `is_active`, `is_approved`, `is_deleted`, `created_date`, `last_logon`, `security_code`) VALUES
-	(1, 'apriyando.rendy@gmail.com', '$2a$08$bg9TK1t.B6UR.clylGGDluJqLzwf7yp8xR9J2KTTST5QmBerZ2uMS', 'Masakindo', '081223016413', 1, 'Y', 'Y', 'N', '2019-11-03 20:59:44', '2019-11-03 20:59:44', '8790'),
-	(10, 'rdy@gmail.com', '$2a$08$BzsbKJ9ZaTq5UFkhCzAMGutZzslRFMTIgcazvnPiZMcImfNfRLyBW', 'Rdy', '081223016413', 2, 'Y', 'N', 'N', '2019-11-02 22:33:56', NULL, '1854'),
+	(1, 'apriyando.rendy@gmail.com', '$2a$08$bg9TK1t.B6UR.clylGGDluJqLzwf7yp8xR9J2KTTST5QmBerZ2uMS', 'Masakindo', '081223016413', 1, 'Y', 'Y', 'N', '2019-11-28 14:01:55', '2019-11-28 14:01:55', '8790'),
+	(10, 'rdy@gmail.com', '$2a$08$BzsbKJ9ZaTq5UFkhCzAMGutZzslRFMTIgcazvnPiZMcImfNfRLyBW', 'Rdy', '081223016413', 3, 'Y', 'Y', 'N', '2019-11-28 14:01:07', '2019-11-28 14:01:07', '1854'),
 	(11, 'dy@gmail.com', '$2a$08$kMM.z7..y4VQSAT7nWb2Zu0IDqylnaFC0G/eg4tdOZXXyD8AY9XRa', 'rdy', '081223016413', 2, 'N', 'N', 'N', '2019-11-02 22:43:24', NULL, '8271'),
 	(12, 'th@gmail.com', '$2a$08$oUxrmcUhufVc4enrU1EoluXtZtlciIBDgUqjZ.k3Vn9AjwDn.gVEG', 'rdy', '0812019282', 2, 'N', 'N', 'N', '2019-11-02 22:44:33', NULL, '316'),
 	(13, 'tes@box.co.id', '$2a$08$EN0BLIQz0NOoIisqRf2OOeUjFTfFNKs8PGIoeAGlLAYSV.AGzT5Pi', 'Abdullah', '08123123124', 2, 'N', 'N', 'N', '2019-11-02 22:49:06', NULL, '2837'),
@@ -8066,7 +8080,9 @@ INSERT INTO `user_profile` (`fullname`, `pob`, `dob`, `address`, `province`, `re
 	('Arnan Tri Arminanto', 'Jakarta', '1992-07-02', 'Jakarta', 31, 3175, 3175040, 3175040002, '081289090306', 'L', 'undefined', NULL, '0', NULL, NULL, NULL, NULL, NULL, '2019-03-07 19:02:00', '0000-00-00 00:00:00', 75, 'N', 0, 0),
 	('Abu Hamzah', 'Cianjur', '1987-06-12', 'Priuk', 31, 3175, 3175030, 3175030004, '085782259511', 'L', 'undefined', NULL, '0', NULL, NULL, NULL, NULL, NULL, '2019-03-11 12:53:37', '0000-00-00 00:00:00', 77, 'N', 0, 0),
 	('Nada khalimatul', 'Jakarta', '2004-02-13', 'Komplek taman asri blok e 2 no 9', 36, 3671, 3671011, 3671011005, '082127089784', 'P', '83_2035_56.jpg', NULL, '0', NULL, NULL, NULL, NULL, NULL, '2019-03-16 20:21:09', '2019-03-13 14:29:43', 83, 'N', 4, 2),
-	('Amel putri', 'Padang', '1992-05-14', 'Komplek taman asri blok e2 no 9', 36, 3671, 3671011, 3671011005, '082124714356', 'P', '80_2035_5.jpg', NULL, '0', NULL, NULL, NULL, NULL, NULL, '2019-03-16 20:21:07', '0000-00-00 00:00:00', 80, 'N', 4, 2);
+	('Amel putri', 'Padang', '1992-05-14', 'Komplek taman asri blok e2 no 9', 36, 3671, 3671011, 3671011005, '082124714356', 'P', '80_2035_5.jpg', NULL, '0', NULL, NULL, NULL, NULL, NULL, '2019-03-16 20:21:07', '0000-00-00 00:00:00', 80, 'N', 4, 2),
+	('Masakindo', 'jkt', '2000-11-28', 'tes', 31, 3171, 3171070, 3171070003, '081223016413', 'L', 'undefined', NULL, '0', NULL, NULL, NULL, NULL, NULL, '2019-11-28 08:44:36', '0000-00-00 00:00:00', 1, 'N', 0, 0),
+	('Rdy', 'tes', '2007-11-28', 'jl', 31, 3172, 3172060, 3172060002, '081223016413', 'L', 'undefined', NULL, '0', NULL, NULL, NULL, NULL, NULL, '2019-11-28 13:06:19', '0000-00-00 00:00:00', 10, 'N', 0, 0);
 /*!40000 ALTER TABLE `user_profile` ENABLE KEYS */;
 
 -- Dumping structure for table hydromart.user_role

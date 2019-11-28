@@ -8,7 +8,7 @@ class Profile_model extends CI_Model {
         parent::__construct();
     }
 
-    public function update($table,$where, $data)
+    public function update($table,$data,$where)
 	{
 		$this->db->update($table, $data, $where);
 		return $this->db->affected_rows();
@@ -24,11 +24,11 @@ class Profile_model extends CI_Model {
 	}
 
 
-    public function update_profile_user($dataexc){
+    public function update_profile_user($dataexc, $user_id){
 
-        if( $this->db->update('user_profile', $dataexc, array('user_id' => $dataexc['user_id'])) ){
+        if( $this->db->update('user_profile', $dataexc, array('user_id' => $user_id)) ){
           
-            return $this->db->affected_rows();
+            return $this->db->get_where('user_profile', array('user_id' => $user_id));
 
         }else{
 
