@@ -29,6 +29,7 @@ class Login_model extends CI_Model {
 	public function check_account($usr, $pass) {
         /*get hash password*/
         $data = $this->get_hash_password($usr);
+        log_message('debug','check_account - > '.json_encode($data));
         /*validate account*/
         if($data){
             
