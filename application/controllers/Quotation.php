@@ -15,12 +15,38 @@ class Quotation extends REST_Controller {
     {
         $q = ($this->get('q'))?$this->get('q'):'';
         $n = $this->get('n');
-        $data = $this->Quotation_model->get_all_data($n,$q);
+        $id = $this->get('i');
+        $data = $this->Quotation_model->get_all_data($id,$n,$q);
 
         $this->response(array('status' => 200, 'message' => 'Sukses', 'data' => $data),200);
     		
     }
-  
+
+    public function get_all_data_pending_get()
+    {
+        $q = ($this->get('q'))?$this->get('q'):'';
+        $n = $this->get('n');
+        $id = $this->get('i');
+        //check id permission
+
+        $data = $this->Quotation_model->get_all_data_pending($id,$n,$q);
+
+        $this->response(array('status' => 200, 'message' => 'Sukses', 'data' => $data),200);
+    		
+    } 
+    public function get_all_data_aprroved_get()
+    {
+        $q = ($this->get('q'))?$this->get('q'):'';
+        $n = $this->get('n');
+        $id = $this->get('i');
+        //check id permission
+
+        $data = $this->Quotation_model->get_all_data_aprroved($id,$n,$q);
+
+        $this->response(array('status' => 200, 'message' => 'Sukses', 'data' => $data),200);
+    		
+    } 
+    
     public function get_detail_get()
     {
         $n = $this->get('n');
@@ -33,55 +59,184 @@ class Quotation extends REST_Controller {
     		
     }
     
+    public function process_approve_quotation_post(){
+        log_message('debug','process_approve_quotation_post data : '.json_encode($this->post()));
+        $id = $this->post('id');
+        $user_id = $this->post('user_id');
+        if($id =='' || $user_id = ''){
+            $resp = array('message' => 'Data tidak valid, Proses Gagal Dilakukan');
+            $this->response($resp);
+        }     
+        else {
+            try {
+      
+                $this->db->trans_begin();
+    
+                $update = $this->Quotation_model->update('quotation', array('status' => (int)'1','updated_by' => $this->post('user_id'),'updated_date' => date('Y-m-d H:i:s')), array('id' => $id));
+
+        
+                log_message('debug','process_submit_quotation_post submitdata : '.json_encode($update));
+
+                if ($this->db->trans_status() === FALSE)
+                {
+                    $this->db->trans_rollback();
+                    log_message('debug','process_approve_quotation_post submitdata trans_rollback');
+                    $this->response(array('status' => 301, 'message' => 'Maaf Proses Gagal Dilakukan'),301);
+                }
+                else
+                {
+                    $this->db->trans_commit();
+                    log_message('debug','process_approve_quotation_post submitdata trans_commit');
+                    $this->response(array('status' => 200, 'message' => 'Proses Berhasil Dilakukan', 'data' => $id),200);
+                }
+    
+    
+            } catch (Exception $e) {
+                log_message('debug','process_approve_quotation_post submitdata try error 500'); 
+               $this->response( $e->getMessage() ,500);
+            }
+        }
+
+    }
+
+
+    public function process_reject_quotation_post(){
+        log_message('debug','process_reject_quotation_post data : '.json_encode($this->post()));
+        $id = $this->post('id');
+        $user_id = $this->post('user_id');
+
+        if($id =='' || $user_id = ''){
+            $resp = array('message' => 'Data tidak valid, Proses Gagal Dilakukan');
+            $this->response($resp);
+        }     
+        else {
+            try {
+      
+                $this->db->trans_begin();
+    
+                $update = $this->Quotation_model->update('quotation', array('status' => (int)'2','updated_by' => $this->post('user_id'),'updated_date' => date('Y-m-d H:i:s')), array('id' => $id));
+
+        
+                log_message('debug','process_reject_quotation_post submitdata : '.json_encode($update));
+
+                if ($this->db->trans_status() === FALSE)
+                {
+                    $this->db->trans_rollback();
+                    log_message('debug','process_reject_quotation_post submitdata trans_rollback');
+                    $this->response(array('status' => 301, 'message' => 'Maaf Proses Gagal Dilakukan'),301);
+                }
+                else
+                {
+                    $this->db->trans_commit();
+                    log_message('debug','process_reject_quotation_post submitdata trans_commit');
+                    $this->response(array('status' => 200, 'message' => 'Proses Berhasil Dilakukan', 'data' => $id),200);
+                }
+    
+    
+            } catch (Exception $e) {
+                log_message('debug','process_reject_quotation_post submitdata try error 500'); 
+               $this->response( $e->getMessage() ,500);
+            }
+        }
+
+    }
+
+
+    public function process_confirmpayment_quotation_post(){
+        log_message('debug','process_confirmpayment_quotation data : '.json_encode($this->post()));
+        $id = $this->post('id');
+        $user_id = $this->post('user_id');
+        if($id =='' || $user_id = ''){
+            $resp = array('message' => 'Data tidak valid, Proses Gagal Dilakukan');
+            $this->response($resp);
+        }     
+        else {
+            try {
+      
+                $this->db->trans_begin();
+    
+                $update = $this->Quotation_model->update('quotation', array('payment' => (int)'1','updated_by' => $this->post('user_id'),'updated_date' => date('Y-m-d H:i:s')), array('id' => $id));
+
+        
+                log_message('debug','process_confirmpayment_quotation submitdata : '.json_encode($update));
+
+                if ($this->db->trans_status() === FALSE)
+                {
+                    $this->db->trans_rollback();
+                    log_message('debug','process_confirmpayment_quotation submitdata trans_rollback');
+                    $this->response(array('status' => 301, 'message' => 'Maaf Proses Gagal Dilakukan'),301);
+                }
+                else
+                {
+                    $this->db->trans_commit();
+                    log_message('debug','process_confirmpayment_quotation submitdata trans_commit');
+                    $this->response(array('status' => 200, 'message' => 'Proses Berhasil Dilakukan', 'data' => $id),200);
+                }
+    
+    
+            } catch (Exception $e) {
+                log_message('debug','process_confirmpayment_quotation submitdata try error 500'); 
+               $this->response( $e->getMessage() ,500);
+            }
+        }
+
+    }
+
+    
+
+
+
 
 	public function process_submit_quotation_post(){
 
         $company_name = $this->post('company_name');
         $company_address = $this->post('company_address');
-        $total_amount = $this->post('total_amount');
         $product = $this->post('product');
-        $qty = $this->post('qty');
-  
-        if($company_name =='' || $company_address =='' || $total_amount =='' || (int)$total_amount < 1){
-                $resp = array('message' => 'Data Kosong, Proses Gagal Dilakukan');
-                $this->response($resp);
-        }
 
-        if(is_array(json_decode($qty))){
-            if( count(json_decode($qty)) < 1 ){
-                $resp = array('message' => 'Data product Kosong, Proses Gagal Dilakukan');
-                $this->response($resp);
-            }
-        } else {
-            $resp = array(
-                'message' => 'Data Qty Error, Proses Gagal Dilakukan',
-            );
+
+        $user_id    = $this->post('user_id');
+        
+
+        if($company_name =='' || $company_address ==''){
+            $resp = array('message' => 'Data Kosong, Proses Gagal Dilakukan');
+            $this->response($resp);
+        }
+        if (!is_array(json_decode($product))) {
+            $resp = array('message' => 'Data Produk Kosong, Proses Gagal Dilakukan');
             $this->response($resp);
         }
 
-        if(is_array(json_decode($product))){
-            if(count(json_decode($product)) < 1){
-                $resp = array(
-                    'message' => 'Data product Kosong, Proses Gagal Dilakukan',
-                );
-                $this->response($resp);
-            }
-        } else {
-            $resp = array(
-                'message' => 'Data product Error, Proses Gagal Dilakukan',
-            );
+        if($user_id ==''){
+            $resp = array('message' => 'Data User Kosong, Proses Gagal Dilakukan');
             $this->response($resp);
-        }
+        }     
 
-        $arrProducts = json_decode($product);
-        $arrQty = json_decode($qty);
         $product_id = [];
         $unit_price = [];
         $amount = [];
-        foreach ($arrProducts as $key => $value) {
+        $name = [];
+        $img = [];
+        $qty = [];   
+        $total_amount = 0;
+        $err = 0;
+        foreach (json_decode($product) as $key => $value) {
+            $name[$key] = $value->name;
+            $img[$key] = $value->img;
             $product_id[$key] = $value->id;
             $unit_price[$key] = $value->price;
-            $amount[$key] = $value->price * $arrQty[$key];
+            $qty[$key] = $value->qty;
+            $amount[$key] = $value->price * $value->qty;
+
+            $total_amount = $total_amount + $amount[$key];
+
+            if($value->price =='' || $value->price ==0  || (int)$value->price < 1 || $value->qty =='' || $value->qty ==0 || (int)$value->qty < 1){
+                $err++;
+            }
+        }
+ 
+        if($err>0){
+            $resp = array('message' => 'Data tidak valid, Proses Gagal Dilakukan');
+            $this->response($resp);
         }
 
         log_message('debug','process_submit_quotation_post data : '.json_encode($this->post()));
@@ -92,11 +247,14 @@ class Quotation extends REST_Controller {
 
             $quotation_no = date('ymdHis').rand(100,999);
 
+
+
             $submitdata = array(
                 'quotation_no' => $quotation_no,
                 'company_name' => $company_name,
                 'company_address' => $company_address,
                 'total_amount' => $total_amount,
+                'customer_id' => $user_id,
                 'valid_date' => date('Y-m-d H:i:s'),
             );
             log_message('debug','process_submit_quotation_post submitdata : '.json_encode($submitdata));
@@ -109,7 +267,9 @@ class Quotation extends REST_Controller {
                 $submitdatadetail = array(
                     'quotation_no' => $quotation_no,
                     'product_id' => $product_id[$k],
-                    'qty' => $arrQty[$k],
+                    'name' => $name[$k],
+                    'img' => $img[$k],
+                    'qty' => $qty[$k],
                     'unit_price' => $unit_price[$k],
                     'amount' => $amount[$k],
                 );

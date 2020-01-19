@@ -42,6 +42,14 @@ class Products_model extends CI_Model {
     }
     
    
- 
+    public function get_detail($n)
+    {
+       
+        $this->db->from('product');
+        $this->db->where('id',$n);
+        $query = $this->db->get();
+        return $query->result();
+
+    }
 
 }

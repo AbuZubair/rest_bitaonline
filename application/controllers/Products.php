@@ -26,6 +26,13 @@ class Products extends REST_Controller {
         $this->response(array('status' => 200, 'message' => 'Sukses', 'data' => $data),200);
 	}
 	
-
+    public function get_detail_get()
+    {
+        $n = $this->get('n');
+        $data = $this->Products_model->get_detail($n);
+        $this->response(array('status' => 200, 'message' => 'Sukses', 'data' => $data),200);
+    		
+	}
+	
 }
 ?>
