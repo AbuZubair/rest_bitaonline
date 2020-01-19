@@ -119,6 +119,7 @@ class Login_model extends CI_Model {
                 'program_parent_id' => $value['program_parent_id'],
                 'link' => $value['link'],
                 'level_program' => $value['level_program'],
+                'icon' => $value['icon'],
                 'counter' => $value['counter'],
                 'is_active' => $value['is_active']
             );
@@ -132,6 +133,7 @@ class Login_model extends CI_Model {
                 'program_parent_id' => $v['program_parent_id'],
                 'link' => $v['link'],
                 'level_program' => $v['level_program'],
+                'icon' => $v['icon'],
                 'counter' => $v['counter'],
                 'is_active' => $v['is_active'],
                 'submenu' => $submenu

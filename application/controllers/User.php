@@ -11,7 +11,7 @@ class User extends REST_Controller {
 
 	public function get_all_user_get()
     {
-		
+		// var_dump($_POST); die();
         $data = $this->User_model->get_all_user($this->get('q'));
 
         $i=0;

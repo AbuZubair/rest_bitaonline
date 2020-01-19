@@ -45,11 +45,32 @@ class Products_model extends CI_Model {
     public function get_detail($n)
     {
        
+        // $this->db->from('product');
+        // $this->db->where('id',$n);
+        // $query = $this->db->get();
+        // return $query->result();
+
+
+
+        $this->db->select('product.* , category.category as categoryname, brand.brand as brandname');
         $this->db->from('product');
-        $this->db->where('id',$n);
+        $this->db->join('category', 'product.category = category.id', 'left');
+        $this->db->join('brand', 'product.brand = brand.id', 'left');
+        $this->db->where('product.is_active','Y');
+               
+        $this->db->where('product.id',$n);
         $query = $this->db->get();
         return $query->result();
 
     }
 
+    public function get_brand()
+    {
+        return $this->db->order_by('brand', 'asc')->get_where('brand')->result();
+    }
+
+    public function get_category()
+    {
+        return $this->db->order_by('category', 'asc')->get_where('category')->result();
+    }
 }

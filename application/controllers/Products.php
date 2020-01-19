@@ -33,6 +33,22 @@ class Products extends REST_Controller {
         $this->response(array('status' => 200, 'message' => 'Sukses', 'data' => $data),200);
     		
 	}
-	
+    public function get_category_get()
+    {
+        
+        $data = $this->Products_model->get_category();
+
+        $this->response(array('status' => 200, 'message' => 'Sukses', 'data' => $data),200);
+    }
+    
+    public function get_brand_get()
+    {
+        
+        $data = $this->Products_model->get_brand();
+
+        $this->response(array('status' => 200, 'message' => 'Sukses', 'data' => $data),200);
+    }
+    
+
 }
 ?>
