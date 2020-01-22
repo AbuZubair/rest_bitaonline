@@ -8,9 +8,11 @@ class Products_model extends CI_Model {
         parent::__construct();
     }
 
-    public function update($table,$where, $data)
+    public function update($table, $data ,$where)
 	{
-		$this->db->update($table, $data, $where);
+        $this->db->update($table, $data, $where);
+        log_message('debug','Products_model update query : '.json_encode($this->db->last_query()));
+        log_message('debug','Products_model update affected_rows : '.json_encode($this->db->affected_rows()));
 		return $this->db->affected_rows();
 	}
 
@@ -19,8 +21,9 @@ class Products_model extends CI_Model {
 	{
 		/*insert masakindo_resep*/
 		$this->db->insert($table, $data);
-		
-		return $this->db->insert_id();;
+        log_message('debug','Products_model save query : '.json_encode($this->db->last_query()));
+        log_message('debug','Products_model save insert_id : '.json_encode($this->db->insert_id()));
+		return $this->db->insert_id();
 	}
 
 
@@ -35,6 +38,18 @@ class Products_model extends CI_Model {
         return $query->result();
 
     }
+
+    public function get_all_active_nonactive_products($n,$q)
+    {
+       
+        $this->db->from('product');
+        if($q!='')$this->db->like('name',$q);
+        $this->db->limit($n);
+        $query = $this->db->get();
+        return $query->result();
+
+    }
+
 
     public function get_rfu()
     {
@@ -63,6 +78,28 @@ class Products_model extends CI_Model {
         return $query->result();
 
     }
+
+    public function get_detail_admin($n)
+    {
+       
+        // $this->db->from('product');
+        // $this->db->where('id',$n);
+        // $query = $this->db->get();
+        // return $query->result();
+
+
+
+        $this->db->select('product.* , category.category as categoryname, brand.brand as brandname');
+        $this->db->from('product');
+        $this->db->join('category', 'product.category = category.id', 'left');
+        $this->db->join('brand', 'product.brand = brand.id', 'left');
+
+        $this->db->where('product.id',$n);
+        $query = $this->db->get();
+        return $query->result();
+
+    }
+    
 
     public function get_brand()
     {
