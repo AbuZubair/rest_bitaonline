@@ -89,7 +89,7 @@ class Products extends REST_Controller {
             'created_date' => date('Y-m-d H:i:s')
         );
 
-        if($user_id = ''){
+        if($user_id == ''){
             $resp = array('message' => 'Data tidak valid, Proses Gagal Dilakukan');
             $this->response($resp);
         }     
@@ -144,7 +144,7 @@ class Products extends REST_Controller {
             'created_date' => date('Y-m-d H:i:s')
         );
 
-        if($id =='' && $user_id = ''){
+        if($id =='' && $user_id == ''){
             $resp = array('message' => 'Data tidak valid, Proses Gagal Dilakukan');
             $this->response($resp);
         }     

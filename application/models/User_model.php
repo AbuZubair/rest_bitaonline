@@ -18,18 +18,45 @@ class User_model extends CI_Model {
 
     public function update($table,$data, $where)
 	{
-		$this->db->update($table, $data, $where);
-		return $this->db->affected_rows();
+
+        $query = $this->db->update($table, $data, $where);
+        $result = $this->db->affected_rows();
+        log_message('debug','Products_model save query : '.json_encode($this->db->last_query()));
+        log_message('debug','Products_model save insert_id : '.json_encode($result));
+
+		return $result;
 	}
  
-    public function get_all_user($n)
+    public function get_all_user($q,$n)
     {
-        $query = "SELECT user_profile.*,user.*,regencies.name
-                    FROM user_profile
-                    left join user on user.user_id=user_profile.user_id
-                    LEFT JOIN regencies on user_profile.regency = regencies.id
-                    WHERE user.is_active = 'Y' AND user.is_deleted = 'N' LIMIT ".$n."";
-        return $this->db->query($query)->result();
+        $this->db->from('user');
+        $this->db->where('is_active','Y');
+        $this->db->where('is_deleted','N');
+        if($q!='')$this->db->like('fullname',$q);
+        $this->db->limit($n);
+        $query = $this->db->get();
+        return $query->result();
+    }    
+
+    public function get_detail($n)
+    {
+       
+        $this->db->from('user');
+        $this->db->where('user_id',$n);
+        $query = $this->db->get();
+        return $query->result();
+
+
+
+        // $this->db->select('product.* , category.category as categoryname, brand.brand as brandname');
+        // $this->db->from('product');
+        // $this->db->join('category', 'product.category = category.id', 'left');
+        // $this->db->join('brand', 'product.brand = brand.id', 'left');
+
+        // $this->db->where('product.id',$n);
+        // $query = $this->db->get();
+        // return $query->result();
+
     }
 
     public function get_all_data_pending()
