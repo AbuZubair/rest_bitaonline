@@ -7,7 +7,9 @@ class Quotation extends REST_Controller {
 
 		parent::__construct();
 
-		$this->load->model('Quotation_model');
+        $this->load->model('Quotation_model');
+        $this->load->library('Pdf','pdf');
+		$this->load->library('mailer');
     
     }
 
@@ -256,6 +258,7 @@ class Quotation extends REST_Controller {
         try {
       
             $this->db->trans_begin();
+            
 
             $quotation_no = date('ymdHis').rand(100,999);
 
@@ -273,6 +276,7 @@ class Quotation extends REST_Controller {
 
             $createInvoice = $this->Quotation_model->save('quotation',$submitdata);
             log_message('debug','process_submit_quotation_post submitdata result : '.json_encode($createInvoice));
+            $get_last_insert_id = $this->db->insert_id();
 
             $k=0;
             while ($k < count($product_id)) {
@@ -303,6 +307,44 @@ class Quotation extends REST_Controller {
             {
                 $this->db->trans_commit();
                 log_message('debug','process_submit_quotation_post submitdata trans_commit');
+
+
+
+
+                    //* pdf & email //
+                    $data =$this->get_detail_quotation_emailpdf($get_last_insert_id);
+                    log_message('debug','process_submit_quotation_post email pdf get_last_insert_id: '.json_encode($get_last_insert_id));
+                    log_message('debug','process_submit_quotation_post email pdf getdata result: '.json_encode($data));
+                    if($data){
+                        //$this->load->view('quotation_pdf',$data);
+                        // $this->load->view('quotaion_view',$data);
+            
+                            /*Sample Send Email with Attach */
+            
+                                /*save pdf*/
+            
+                                $html = $this->load->view('quotation_pdf',$data,true);
+            
+                                $path_file = $this->pdf->print_pdf($html,'Title'.date('YmdHis').'');
+            
+                                /*kirim email */
+            
+                                // $data['data'] = $data;
+                                $html_email = $this->load->view('quotaion_view',$data,true);
+            
+                                $this->mailer->sendemailWithAttach(EMAIL_ADMIN,$html_email,'Quotation',$path_file); 
+            
+                            /*******************************/
+            
+                    } else {
+                        //log message error
+                        log_message('debug','process_submit_quotation_post email pdf getdata false');
+                    }
+                     //* /pdf & email //
+                    
+
+
+
                 $this->response(array('status' => 200, 'message' => 'Proses Berhasil Dilakukan', 'data' => $quotation_no),200);
             }
 
@@ -313,6 +355,27 @@ class Quotation extends REST_Controller {
         }
  
     }
+
+    
+    public function get_detail_quotation_emailpdf($n)
+    {
+        //$n = $this->get('n');
+        //$n = 7;
+        $data = $this->Quotation_model->get_detail($n);
+        //var_dump($data[0]->quotation_no); die();
+
+        if(count($data)>0){
+            $data[0]->products = $this->Quotation_model->get_detail_products($data[0]->quotation_no);
+            // $this->response(array('status' => 200, 'message' => 'Sukses', 'data' => $data),200);
+            return $data[0];
+        } else {
+            return false;
+        }
+
+    		
+    }
+
+
 
     public function get_prov_get()
     {
@@ -352,6 +415,31 @@ class Quotation extends REST_Controller {
         $this->response(array('status' => 200, 'message' => 'Sukses', 'data' => $data),200);
     }
 
+    public function get_email_get()
+    {
+        echo "zz";
+        //$this->load->view('quotation_pdf');
+        $data=array();
+        $this->load->view('quotaion_view',$data,true);
+        // die();
+        
+        //         /*Sample Send Email with Attach */
+
+        //             /*save pdf*/
+        //             $data = array();
+        //             $html = $this->load->view('quotation_pdf',$data,true);
+
+        //             $path_file = $this->pdf->print_pdf($html,'Title'.date('YmdHis').'');
+
+        //             /*kirim email */
+
+        //             $data['data'] = $data;
+        //             $html_email = $this->load->view('quotaion_view',$data,true);
+
+        //             $this->mailer->sendemailWithAttach(EMAIL_ADMIN,$html_email,'Quotation',$path_file); 
+
+        //         /*******************************/
+    }
 
 }
 ?>

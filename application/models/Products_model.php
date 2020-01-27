@@ -27,12 +27,14 @@ class Products_model extends CI_Model {
 	}
 
 
-    public function get_all_products($n,$q)
+    public function get_all_products($n,$q,$c,$b)
     {
        
         $this->db->from('product');
         $this->db->where('is_active','Y');
         if($q!='')$this->db->like('name',$q);
+        if($c!='')$this->db->like('category',$c);
+        if($b!='')$this->db->like('brand',$b);
         $this->db->limit($n);
         $query = $this->db->get();
         return $query->result();

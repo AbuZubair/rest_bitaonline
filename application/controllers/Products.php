@@ -13,7 +13,11 @@ class Products extends REST_Controller {
     {
         $q = ($this->get('q'))?$this->get('q'):'';
         $n = $this->get('n');
-        $data = $this->Products_model->get_all_products($n,$q);
+
+        $c = ($this->get('c'))?$this->get('c'):'';
+        $b = ($this->get('b'))?$this->get('b'):'';
+
+        $data = $this->Products_model->get_all_products($n,$q,$c,$b);
 
         $this->response(array('status' => 200, 'message' => 'Sukses', 'data' => $data),200);
     		
