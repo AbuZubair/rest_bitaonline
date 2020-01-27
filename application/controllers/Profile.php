@@ -146,6 +146,122 @@ class Profile extends REST_Controller {
         $this->response(array('status' => 200, 'message' => 'Sukses', 'data' => $data),200);
     }
 
+	function get_client_ip() {
+		$ipaddress = '';
+		if (getenv('HTTP_CLIENT_IP'))
+			$ipaddress = getenv('HTTP_CLIENT_IP');
+		else if(getenv('HTTP_X_FORWARDED_FOR'))
+			$ipaddress = getenv('HTTP_X_FORWARDED_FOR');
+		else if(getenv('HTTP_X_FORWARDED'))
+			$ipaddress = getenv('HTTP_X_FORWARDED');
+		else if(getenv('HTTP_FORWARDED_FOR'))
+			$ipaddress = getenv('HTTP_FORWARDED_FOR');
+		else if(getenv('HTTP_FORWARDED'))
+		   $ipaddress = getenv('HTTP_FORWARDED');
+		else if(getenv('REMOTE_ADDR'))
+			$ipaddress = getenv('REMOTE_ADDR');
+		else
+			$ipaddress = 'UNKNOWN';
+		return $ipaddress;
+	}
+
+
+    public function process_register_byadmin_post(){
+        $this->load->model('login_model');
+        $this->load->library('bcrypt');
+
+		$email = $this->post('email');
+		$phone_number = $this->post('phone_number');
+		$fullname = $this->post('fullname');
+		$security_code = $this->post('security_code');
+		$confirm_security_code = $this->post('confirm_security_code');
+		$level_id = $this->post('level_id');
+
+        //var_dump($_POST); die();
+        // array(6) { ["fullname"]=> string(4) "budi" ["email"]=> string(13) "budi@budi.com" ["phone_number"]=> string(9) "123123123" ["level_id"]=> string(1) "1" ["security_code"]=> string(4) "budi" ["confirm_security_code"]=> string(4) "budi" }
+
+		if($email =='' || $phone_number ==''|| $fullname ==''|| $security_code ==''|| $level_id ==''){
+			log_message('debug','process_register_byadmin some data empty');
+			echo json_encode(array('status' => 301, 'message' => 'Form data tidak lengkap'));
+			exit();
+		}
+
+		//var_dump($_POST); die();
+
+		$user = $this->login_model->get_by_email($email);
+
+		if($user==0){
+
+			$this->db->trans_begin();
+
+			$dataexc = array(
+				'username' => $this->regex->_genRegex($email,'RGXQSL'),
+				'phone_no' => $this->regex->_genRegex($phone_number,'RGXQSL'),
+				'password' => $this->bcrypt->hash_password($security_code),
+				'fullname' => $this->regex->_genRegex($fullname,'RGXQSL'),
+				'created_date' => date('Y-m-d H:i:s'),
+				'security_code' => rand(9, 9999),
+                'is_active' => 'Y',
+                'is_approved' => 'Y'
+			);
+
+			log_message('debug','process_register_byadmin dataexc : '.json_encode($dataexc));
+
+			if(isset($_POST['level_id']))$dataexc['level_id'] = $this->post('level_id');
+				
+			/*save post data*/
+			$newId = $this->login_model->save_acc_register($dataexc);
+
+			/*get new data register*/
+			$newData = $this->login_model->get_by_id($newId);
+
+			/*create key */
+			$keyexec = array(
+				'user_id' => $newId,
+				'key' => sha1(date('mYd').$newData->username),
+				'level' => 1,
+				'ip_addresses' => $this->get_client_ip(),
+				'date_created' => date('Y-m-d H:i:s')
+			);
+
+			log_message('debug','process_register_byadmin keyexec : '.json_encode($keyexec));
+
+			$this->login_model->create_key($keyexec);
+			
+			// /*send notification by sms*/
+
+			// $config_sms = array(
+			//     'from' => 'Hydromart',
+			//     'phone' => $newData->phone_no,
+			//     'message' => '(no-reply) Hydromart : Kode Verifikasi anda '.$newData->security_code.'',
+			//     );
+
+			// $send_sms = $this->api->adsmedia_send_sms($config_sms);
+			
+			// /*end send notification by sms*/
+
+
+			if ($this->db->trans_status() === FALSE)
+			{
+				log_message('debug','process_register_byadmin gagal');
+				$this->db->trans_rollback();
+				echo json_encode(array('status' => 301, 'message' => 'Maaf Proses Gagal Dilakukan'));
+			}
+			else
+			{
+				log_message('debug','process_register_byadmin sukses');
+				$this->db->trans_commit();
+				echo json_encode(array('status' => 200, 'message' => 'Sukses registrasi'));
+				// $hash_security_code = $this->bcrypt->hash_password($dataexc['security_code']);
+				// echo json_encode(array('status' => 200, 'message' => 'Silahkan Verifikasi Code yang dikirimkan via SMS', 'verifikasi_code' => $dataexc['security_code'], 'uid' => $hash_security_code,'id' => $newId ));
+			}
+		}else{
+			log_message('debug','process_register_byadmin email used');
+			echo json_encode(array('status' => 301, 'message' => 'Maaf Email Sudah digunakan'));
+		}
+
+	}
+
 
 }
 ?>
