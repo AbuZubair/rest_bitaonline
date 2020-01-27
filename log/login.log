@@ -180,4 +180,29 @@
 "2020-01-23 14:05:55", "Update key", {"user_id":"1","key":"d97d97971ff1f6a02f6dc4d2a63af6d081c45a11"}
 "2020-01-24 10:33:57", "Data input Login", {"username":"apriyando.rendy@gmail.com","password":"123456"}
 "2020-01-24 10:33:57", "Update key", {"user_id":"1","key":"cb6f95d40fda378abeeaf10b6a4b276d7d521fd5"}
+"2020-01-25 08:58:11", "Data input Login", {"username":"aldo_kun@yahoo.com","password":"aldo"}
+"2020-01-25 08:58:12", "Update key", {"user_id":"15","key":"fe573f35169683180c58674e5a4ee4851dd41b02"}
+"2020-01-26 23:04:23", "Data input Login", {"username":"aldo_kun@yahoo.com","password":"aldo"}
+"2020-01-26 23:04:23", "Update key", {"user_id":"15","key":"4462808a6cea87c1daee480c7f6d071df109c622"}
+"2020-01-26 23:11:53", "Data input Login", {"username":"apriyando.rendy@gmail.com","password":"123456"}
+"2020-01-26 23:11:54", "Update key", {"user_id":"1","key":"10c8b49466cc9e62235658e280f208e7f3367358"}
+"2020-01-26 23:14:01", "Data input Login", {"username":"apriyando.rendy@gmail.com","password":"123456"}
+"2020-01-26 23:14:01", "Update key", {"user_id":"1","key":"10c8b49466cc9e62235658e280f208e7f3367358"}
+"2020-01-26 23:27:34", "Data input Login", {"username":"test@test.com","password":"test"}
+"2020-01-26 23:29:11", "Data input Login", {"username":"test@test.com","password":"test"}
+"2020-01-26 23:30:08", "Data input Login", {"username":"apriyando.rendy@gmail.com","password":"123456"}
+"2020-01-26 23:30:09", "Update key", {"user_id":"1","key":"10c8b49466cc9e62235658e280f208e7f3367358"}
+"2020-01-27 14:03:38", "Data input Login", {"username":"aldo_kun@yahoo.com","password":"aldo"}
+"2020-01-27 14:03:38", "Update key", {"user_id":"15","key":"d845d1bf5bfdaeb87fad136e8f3218ff549b522b"}
+"2020-01-27 14:23:55", "Data input Login", {"username":"apriyando.rendy@gmail.com","password":"123456"}
+"2020-01-27 14:23:55", "Update key", {"user_id":"1","key":"bc6e003628c1e2f0ef3cd73ea18c7031c57ab334"}
+"2020-01-27 14:29:41", "Data input Login", {"username":"aldo_kun@yahoo.com","password":"123456"}
+"2020-01-27 14:29:46", "Data input Login", {"username":"aldo_kun@yahoo.com","password":"aldo"}
+"2020-01-27 14:29:46", "Update key", {"user_id":"15","key":"d845d1bf5bfdaeb87fad136e8f3218ff549b522b"}
+"2020-01-27 14:40:52", "Data input Login", {"username":"apriyando.rendy@gmail.com","password":"123456"}
+"2020-01-27 14:40:53", "Update key", {"user_id":"1","key":"bc6e003628c1e2f0ef3cd73ea18c7031c57ab334"}
+"2020-01-27 14:41:08", "Data input Login", {"username":"aldo_kun@yahoo.com","password":"aldo"}
+"2020-01-27 14:41:08", "Update key", {"user_id":"15","key":"d845d1bf5bfdaeb87fad136e8f3218ff549b522b"}
+"2020-01-27 15:02:57", "Data input Login", {"username":"apriyando.rendy@gmail.com","password":"123456"}
+"2020-01-27 15:02:57", "Update key", {"user_id":"1","key":"bc6e003628c1e2f0ef3cd73ea18c7031c57ab334"}
 

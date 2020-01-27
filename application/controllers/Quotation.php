@@ -21,6 +21,18 @@ class Quotation extends REST_Controller {
         $this->response(array('status' => 200, 'message' => 'Sukses', 'data' => $data),200);
     		
     }
+	public function get_all_data_userselected_get()
+    {
+        $q = ($this->get('q'))?$this->get('q'):'';
+        $n = $this->get('n');
+        $id = $this->get('i');
+        $data = $this->Quotation_model->get_all_data_userselected($id,$n,$q);
+
+        $this->response(array('status' => 200, 'message' => 'Sukses', 'data' => $data),200);
+    		
+    }
+
+    
 
     public function get_all_data_pending_get()
     {

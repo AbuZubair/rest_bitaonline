@@ -245,6 +245,95 @@ class Login extends CI_Controller {
 		}
 
 	}
+
+	public function process_register_byadmin(){
+
+		$email = $this->getInput('email');
+		$phone_number = $this->getInput('phone_number');
+		$fullname = $this->getInput('fullname');
+		$security_code = $this->getInput('security_code');
+		$confirm_security_code = $this->getInput('confirm_security_code');
+		$level_id = $this->getInput('level_id');
+
+		if($email =='' || $phone_number ==''|| $fullname ==''|| $security_code ==''|| $security_code =='level_id'){
+			log_message('debug','process_register_byadmin some data empty');
+			echo json_encode(array('status' => 301, 'message' => 'Form data tidak lengkap'));
+			exit();
+		}
+
+		$user = $this->login_model->get_by_email($email);
+
+		if($user==0){
+
+			$this->db->trans_begin();
+
+			$dataexc = array(
+				'username' => $this->regex->_genRegex($email,'RGXQSL'),
+				'phone_no' => $this->regex->_genRegex($phone_number,'RGXQSL'),
+				'password' => $this->bcrypt->hash_password($security_code),
+				'fullname' => $this->regex->_genRegex($fullname,'RGXQSL'),
+				'created_date' => date('Y-m-d H:i:s'),
+				'security_code' => rand(9, 9999),
+				'is_active' => 'Y'
+			);
+
+			log_message('debug','process_register_byadmin dataexc : '.json_encode($dataexc));
+
+			if(isset($_POST['level_id']))$dataexc['level_id'] = $this->getInput('level_id');
+				
+			/*save post data*/
+			$newId = $this->login_model->save_acc_register($dataexc);
+
+			/*get new data register*/
+			$newData = $this->login_model->get_by_id($newId);
+
+			/*create key */
+			$keyexec = array(
+				'user_id' => $newId,
+				'key' => sha1(date('mYd').$newData->username),
+				'level' => 1,
+				'ip_addresses' => $this->get_client_ip(),
+				'date_created' => date('Y-m-d H:i:s')
+			);
+
+			log_message('debug','process_register_byadmin keyexec : '.json_encode($keyexec));
+
+			$this->login_model->create_key($keyexec);
+			
+			// /*send notification by sms*/
+
+			// $config_sms = array(
+			//     'from' => 'Hydromart',
+			//     'phone' => $newData->phone_no,
+			//     'message' => '(no-reply) Hydromart : Kode Verifikasi anda '.$newData->security_code.'',
+			//     );
+
+			// $send_sms = $this->api->adsmedia_send_sms($config_sms);
+			
+			// /*end send notification by sms*/
+
+
+			if ($this->db->trans_status() === FALSE)
+			{
+				log_message('debug','process_register_byadmin gagal');
+				$this->db->trans_rollback();
+				echo json_encode(array('status' => 301, 'message' => 'Maaf Proses Gagal Dilakukan'));
+			}
+			else
+			{
+				log_message('debug','process_register_byadmin sukses');
+				$this->db->trans_commit();
+				echo json_encode(array('status' => 200, 'message' => 'Sukses registrasi'));
+				// $hash_security_code = $this->bcrypt->hash_password($dataexc['security_code']);
+				// echo json_encode(array('status' => 200, 'message' => 'Silahkan Verifikasi Code yang dikirimkan via SMS', 'verifikasi_code' => $dataexc['security_code'], 'uid' => $hash_security_code,'id' => $newId ));
+			}
+		}else{
+			log_message('debug','process_register_byadmin email used');
+			echo json_encode(array('status' => 301, 'message' => 'Maaf Email Sudah digunakan'));
+		}
+
+	}
+	
 	
 	public function send_sms()
     {

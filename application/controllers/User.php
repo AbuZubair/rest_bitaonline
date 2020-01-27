@@ -20,6 +20,15 @@ class User extends REST_Controller {
         $this->response(array('status' => 200, 'message' => 'Sukses', 'data' => $data),200);
     		
     }
+
+    public function get_userlevel_get()
+    {
+        
+        $data = $this->User_model->get_userlevel();
+
+        $this->response(array('status' => 200, 'message' => 'Sukses', 'data' => $data),200);
+    }
+    
     
     public function get_detail_get()
     {

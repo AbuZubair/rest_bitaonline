@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Waktu pembuatan: 24 Jan 2020 pada 03.58
+-- Waktu pembuatan: 27 Jan 2020 pada 11.25
 -- Versi server: 10.4.8-MariaDB
 -- Versi PHP: 7.3.11
 
@@ -53,8 +53,8 @@ INSERT INTO `app_program` (`program_id`, `program_name`, `program_parent_id`, `l
 (7, 'Edit Profile', '1', 'UserprofilePage', 2, 1, 'Y', 'add'),
 (8, 'User', '2', 'UserApprovalPage', 2, 1, 'Y', 'contacts'),
 (9, 'Create User', '2', 'RegisterPage', 2, 2, 'Y', 'person-add'),
-(10, 'Bonus', '3', '', 2, 1, 'Y', 'ribbon'),
-(11, 'Rating', '3', '', 2, 2, 'Y', 'star'),
+(10, 'Bonus', '3', 'UserBonus', 2, 1, 'Y', 'ribbon'),
+(11, 'Rating', '3', 'UserRating', 2, 2, 'Y', 'star'),
 (12, 'Products', '6', 'ProductsList', 2, 1, 'Y', 'pricetags'),
 (13, 'Create Product', '6', 'ProductFormPage', 2, 2, 'Y', 'add-circle');
 
@@ -7435,13 +7435,17 @@ CREATE TABLE `keys` (
 --
 
 INSERT INTO `keys` (`id`, `user_id`, `key`, `level`, `ignore_limits`, `is_private_key`, `ip_addresses`, `date_created`) VALUES
-(1, 1, 'd97d97971ff1f6a02f6dc4d2a63af6d081c45a11', 1, 0, 0, '%', '2020-01-22 17:42:30'),
+(1, 1, 'bc6e003628c1e2f0ef3cd73ea18c7031c57ab334', 1, 0, 0, '%', '2020-01-27 07:23:55'),
 (5, 10, 'e1c56a0f2b81fe0d248fb20d0207a37b8c1b2e16', 1, 0, 0, '::1', '2019-11-28 05:52:01'),
 (6, 11, 'e6460e28239b03af105a5dc0b6d30857e24c47b3', 1, 0, 0, '::1', '2019-11-02 15:43:24'),
 (7, 12, '391ef029d1aeca97a864d2c5ce1c3641902c0b5d', 1, 0, 0, '::1', '2019-11-02 15:44:33'),
 (8, 13, '1be7bd6ce645c64c90a574f386684fd60f6252d8', 1, 0, 0, '::1', '2019-11-02 15:49:06'),
 (9, 14, '1be7bd6ce645c64c90a574f386684fd60f6252d8', 1, 0, 0, '::1', '2019-11-02 15:52:56'),
-(10, 15, '26852eff3be6666b51cec35f1e85ab290a61b443', 1, 0, 0, '::1', '2020-01-22 17:41:26');
+(10, 15, 'd845d1bf5bfdaeb87fad136e8f3218ff549b522b', 1, 0, 0, '::1', '2020-01-27 07:03:38'),
+(11, 16, '7c87b86ac5c4f79694dc5100601dc32d212c2f9b', 1, 0, 0, '::1', '2020-01-26 16:26:14'),
+(12, 17, '13fb335d1680280ac1a7c4ecc093faaefc6b4680', 1, 0, 0, '::1', '2020-01-26 16:28:55'),
+(13, 18, 'b754ac3a41a50444b2c6fbc661bdcf7ea1489a15', 1, 0, 0, '::1', '2020-01-26 18:16:47'),
+(14, 19, 'b754ac3a41a50444b2c6fbc661bdcf7ea1489a15', 1, 0, 0, '::1', '2020-01-26 18:42:20');
 
 -- --------------------------------------------------------
 
@@ -7589,7 +7593,8 @@ INSERT INTO `quotation` (`id`, `quotation_no`, `company_name`, `company_address`
 (4, '200110120736746', 'PT ea', 'ea address', '2020-01-10 05:07:36', 13, '97554500.00', NULL, 0, '2020-01-19 03:59:27', NULL, '2020-01-12 03:50:21', '1'),
 (5, '200116220014235', 'nama pt', 'almamat', '2020-01-16 15:00:14', 10, '0.00', 1, 1, '2020-01-19 05:54:26', NULL, '2020-01-19 05:54:26', '1'),
 (6, '200116220950171', 'nama pt', 'almamat', '2020-01-16 15:09:50', 11, '9016500.00', 2, 0, '2020-01-19 05:28:37', NULL, '2020-01-19 05:28:37', '1'),
-(7, '200116232415365', 'test', '123123', '2020-01-16 16:24:15', 1, '9999188.00', 2, 0, '2020-01-22 17:29:36', NULL, '2020-01-22 17:29:36', '1');
+(7, '200116232415365', 'test', '123123', '2020-01-16 16:24:15', 1, '9999188.00', 2, 0, '2020-01-22 17:29:36', NULL, '2020-01-22 17:29:36', '1'),
+(8, '200127171438792', 'ald test', 'ald test 123', '2020-01-27 10:14:38', 1, '300.00', 1, 0, '2020-01-27 10:21:55', NULL, '2020-01-27 10:21:55', '1');
 
 -- --------------------------------------------------------
 
@@ -7631,7 +7636,8 @@ INSERT INTO `quotation_detail` (`id`, `quotation_no`, `product_id`, `name`, `img
 (16, '200116220950171', 333, 'product 3', 'sample-product-3.jpg', 3, '3000000.00', '9000000.00'),
 (17, '200116220950171', 444, 'FERROLITE', 'FERROLITE.jpg', 4, '4000.00', '16000.00'),
 (18, '200116232415365', 3336, 'DIFFUSER JAGER', 'Disc-Diffuser.jpg', 1, '9998888.00', '9998888.00'),
-(19, '200116232415365', 111, 'product 1', 'sample-product-1.jpg', 3, '100.00', '300.00');
+(19, '200116232415365', 111, 'product 1', 'sample-product-1.jpg', 3, '100.00', '300.00'),
+(20, '200127171438792', 111, 'product 01', 'sample-product-1.jpg', 3, '100.00', '300.00');
 
 -- --------------------------------------------------------
 
@@ -8188,7 +8194,8 @@ INSERT INTO `room_chat` (`room_id`, `room_participant1_id`, `room_participant2_i
 (20, 58, 74, 'N', '2019-03-06 12:50:33', '0000-00-00 00:00:00'),
 (21, 57, 58, 'N', '2019-03-18 00:33:52', '2019-03-18 00:33:52'),
 (22, 83, 80, 'N', '2019-03-13 14:12:40', '0000-00-00 00:00:00'),
-(25, 10, 1, 'N', '2019-11-28 07:01:11', '2019-11-28 07:01:11');
+(25, 10, 1, 'N', '2019-11-28 07:01:11', '2019-11-28 07:01:11'),
+(26, 15, 1, 'N', '2020-01-26 16:04:24', '0000-00-00 00:00:00');
 
 -- --------------------------------------------------------
 
@@ -8304,13 +8311,17 @@ CREATE TABLE `user` (
 --
 
 INSERT INTO `user` (`user_id`, `username`, `password`, `fullname`, `phone_no`, `level_id`, `bonus`, `rating`, `is_active`, `is_approved`, `is_deleted`, `created_date`, `last_logon`, `security_code`) VALUES
-(1, 'apriyando.rendy@gmail.com', '$2a$08$bg9TK1t.B6UR.clylGGDluJqLzwf7yp8xR9J2KTTST5QmBerZ2uMS', 'Masakindo', '081223016413', 1, 0, 0, 'Y', 'Y', 'N', '2020-01-23 07:05:55', '2020-01-23 07:05:55', '8790'),
+(1, 'apriyando.rendy@gmail.com', '$2a$08$bg9TK1t.B6UR.clylGGDluJqLzwf7yp8xR9J2KTTST5QmBerZ2uMS', 'Masakindo', '081223016413', 1, 0, 0, 'Y', 'Y', 'N', '2020-01-27 08:02:57', '2020-01-27 08:02:57', '8790'),
 (10, 'rdy@gmail.com', '$2a$08$BzsbKJ9ZaTq5UFkhCzAMGutZzslRFMTIgcazvnPiZMcImfNfRLyBW', 'Rdy', '081223016413', 3, 0, 0, 'Y', 'Y', 'N', '2019-11-28 07:01:07', '2019-11-28 07:01:07', '1854'),
 (11, 'dy@gmail.com', '$2a$08$kMM.z7..y4VQSAT7nWb2Zu0IDqylnaFC0G/eg4tdOZXXyD8AY9XRa', 'rdy', '081223016413', 2, 0, 0, 'N', 'N', 'N', '2019-11-02 15:43:24', NULL, '8271'),
 (12, 'th@gmail.com', '$2a$08$oUxrmcUhufVc4enrU1EoluXtZtlciIBDgUqjZ.k3Vn9AjwDn.gVEG', 'rdy', '0812019282', 2, 0, 0, 'N', 'N', 'N', '2019-11-02 15:44:33', NULL, '316'),
 (13, 'tes@box.co.id', '$2a$08$EN0BLIQz0NOoIisqRf2OOeUjFTfFNKs8PGIoeAGlLAYSV.AGzT5Pi', 'Abdullah', '08123123124', 2, 0, 0, 'N', 'N', 'N', '2019-11-02 15:49:06', NULL, '2837'),
 (14, 'tes@box.co.id', '$2a$08$FCTzNv1AucWTEivrZLdwVutJJjhcgAl5qwYI9JQb2O09DdYlx0FYa', 'Abdullah', '081234563', 2, 0, 0, 'N', 'N', 'N', '2019-11-02 15:52:56', NULL, '8403'),
-(15, 'aldo_kun@yahoo.com', '$2a$08$..k3Wy1v2A9Sz0ydRTCGTeU6561JOlhodu7a35ylLBJg5.0hTB3He', 'aldo', '08988896690', 3, 0, 0, 'Y', 'Y', 'N', '2020-01-23 08:21:59', NULL, '5223');
+(15, 'aldo_kun@yahoo.com', '$2a$08$..k3Wy1v2A9Sz0ydRTCGTeU6561JOlhodu7a35ylLBJg5.0hTB3He', 'aldo', '08988896690', 3, 300, 0, 'Y', 'Y', 'N', '2020-01-27 07:41:08', '2020-01-27 07:41:08', '5223'),
+(16, 'test@test.com', '$2a$08$eui2GkLQX6Z3wLw7At4/nOt69QajTTrz1txJSNEMP2ATW6Gf71L9u', 'test', '08988896690', 3, 0, 0, 'Y', 'N', 'N', '2020-01-26 16:27:18', NULL, '8127'),
+(17, 'tes@tes.com', '$2a$08$JkX0/N.xKZ/x3VwyiOkpgO0miQmrLvhJmHJxFCy1PxrKxShqNMsiq', 'tes', '08988896690', 3, 0, 0, 'N', 'N', 'N', '2020-01-26 16:28:55', NULL, '5306'),
+(18, '', '$2a$08$aj0R00FW8qBAF0NN3kg.WeMqxcIal5a.Q3.ZzQdQtR.X2govpW.9K', '', '', 3, 0, 0, 'N', 'N', 'N', '2020-01-26 18:16:47', NULL, '5842'),
+(19, '', '$2a$08$m4UovW6jaUVbBivOf4SXEet6utrG0QANoqL/gZlDrN8eTv1baYBqu', '', '', 3, 0, 0, 'Y', 'N', 'N', '2020-01-26 18:42:20', NULL, '1904');
 
 -- --------------------------------------------------------
 
@@ -8359,7 +8370,8 @@ INSERT INTO `user_profile` (`fullname`, `pob`, `dob`, `address`, `province`, `re
 ('Nada khalimatul', 'Jakarta', '2004-02-13', 'Komplek taman asri blok e 2 no 9', 36, 3671, 3671011, 3671011005, '082127089784', 'P', '83_2035_56.jpg', NULL, '0', NULL, NULL, NULL, NULL, NULL, '2019-03-16 13:21:09', '2019-03-13 07:29:43', 83, 'N', 4, 2),
 ('Amel putri', 'Padang', '1992-05-14', 'Komplek taman asri blok e2 no 9', 36, 3671, 3671011, 3671011005, '082124714356', 'P', '80_2035_5.jpg', NULL, '0', NULL, NULL, NULL, NULL, NULL, '2019-03-16 13:21:07', '0000-00-00 00:00:00', 80, 'N', 4, 2),
 ('Masakindo', 'jkt', '2003-11-09', 'tes', 31, 3171, 3171070, 3171070003, '081223016413', 'L', 'undefined', NULL, '0', NULL, NULL, NULL, NULL, NULL, '2020-01-07 17:46:44', '2020-01-07 11:46:44', 1, 'N', 0, 0),
-('Rdy', 'tes', '2007-11-28', 'jl', 31, 3172, 3172060, 3172060002, '081223016413', 'L', 'undefined', NULL, '0', NULL, NULL, NULL, NULL, NULL, '2019-11-28 06:06:19', '0000-00-00 00:00:00', 10, 'N', 0, 0);
+('Rdy', 'tes', '2007-11-28', 'jl', 31, 3172, 3172060, 3172060002, '081223016413', 'L', 'undefined', NULL, '0', NULL, NULL, NULL, NULL, NULL, '2019-11-28 06:06:19', '0000-00-00 00:00:00', 10, 'N', 0, 0),
+('aldo', 'jakarta', '2020-01-27', 'jakarta', 31, 3174, 3174080, 1101010000, '08988896690', 'L', 'undefined', NULL, '0', NULL, NULL, NULL, NULL, NULL, '2020-01-27 07:06:16', '0000-00-00 00:00:00', 15, 'N', 0, 0);
 
 -- --------------------------------------------------------
 
@@ -8415,6 +8427,19 @@ CREATE TABLE `villages` (
   `district_id` char(7) COLLATE utf8_unicode_ci NOT NULL,
   `name` varchar(255) COLLATE utf8_unicode_ci NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+
+--
+-- Dumping data untuk tabel `villages`
+--
+
+INSERT INTO `villages` (`id`, `district_id`, `name`) VALUES
+('1101010000', '3174080', 'taman palem'),
+('1101010001', '1101010', 'LATIUNG'),
+('1101010002', '1101010', 'LABUHAN BAJAU'),
+('1101010003', '1101010', 'SUAK LAMATAN'),
+('1101010004', '1101010', 'ANA AO'),
+('1101010005', '1101010', 'LATALING'),
+('1101010006', '1101010', 'PULAU BENGKALAK');
 
 --
 -- Indexes for dumped tables
@@ -8563,7 +8588,7 @@ ALTER TABLE `chat`
 -- AUTO_INCREMENT untuk tabel `keys`
 --
 ALTER TABLE `keys`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=15;
 
 --
 -- AUTO_INCREMENT untuk tabel `level_user`
@@ -8581,19 +8606,19 @@ ALTER TABLE `product`
 -- AUTO_INCREMENT untuk tabel `quotation`
 --
 ALTER TABLE `quotation`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
 
 --
 -- AUTO_INCREMENT untuk tabel `quotation_detail`
 --
 ALTER TABLE `quotation_detail`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=20;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=21;
 
 --
 -- AUTO_INCREMENT untuk tabel `room_chat`
 --
 ALTER TABLE `room_chat`
-  MODIFY `room_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=26;
+  MODIFY `room_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=27;
 
 --
 -- AUTO_INCREMENT untuk tabel `tmp_global_reference`
@@ -8611,7 +8636,7 @@ ALTER TABLE `token`
 -- AUTO_INCREMENT untuk tabel `user`
 --
 ALTER TABLE `user`
-  MODIFY `user_id` int(10) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=16;
+  MODIFY `user_id` int(10) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=20;
 
 --
 -- AUTO_INCREMENT untuk tabel `user_role`

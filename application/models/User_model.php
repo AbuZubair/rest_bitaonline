@@ -38,6 +38,11 @@ class User_model extends CI_Model {
         return $query->result();
     }    
 
+    public function get_userlevel()
+    {
+        return $this->db->order_by('level_id', 'asc')->get_where('level_user')->result();
+    }
+
     public function get_detail($n)
     {
        
