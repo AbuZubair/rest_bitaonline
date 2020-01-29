@@ -112,4 +112,14 @@ class Products_model extends CI_Model {
     {
         return $this->db->order_by('category', 'asc')->get_where('category')->result();
     }
+
+    public function check_brand_by_name($name)
+    {
+        return $this->db->get_where('brand',array('brand' => strtoupper($name)))->num_rows();
+    }
+
+    public function check_category_by_name($name)
+    {
+        return $this->db->get_where('category',array('category' => strtoupper($name)))->num_rows();
+    }
 }

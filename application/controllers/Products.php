@@ -102,6 +102,29 @@ class Products extends REST_Controller {
       
                 $this->db->trans_begin();
     
+                if($this->post('category_new')!=''){
+                    $check_cat = $this->Products_model->check_category_by_name($this->post('category_new'));
+
+                    if($check_cat>0){
+                        $resp = array('message' => 'Category does exist');
+                        $this->response($resp);
+                    }else{
+                        $id = $this->Products_model->save('category', array('category' => strtoupper($this->post('category_new'))));
+                        $data['category'] = $id;
+                    }
+                }
+
+                if($this->post('brand_new')!=''){
+                    $check_brand = $this->Products_model->check_brand_by_name($this->post('brand_new'));
+
+                    if($check_brand>0){
+                        $resp = array('message' => 'Brand does exist');
+                        $this->response($resp);
+                    }else{
+                        $id = $this->Products_model->save('brand', array('brand' => strtoupper($this->post('brand_new')) ));
+                        $data['brand'] = $id;
+                    }
+                }
 
                 $insert = $this->Products_model->save('product', $data);
 
@@ -157,6 +180,29 @@ class Products extends REST_Controller {
       
                 $this->db->trans_begin();
     
+                if($this->post('category_new')!=''){
+                    $check_cat = $this->Products_model->check_category_by_name($this->post('category_new'));
+
+                    if($check_cat>0){
+                        $resp = array('message' => 'Category does exist');
+                        $this->response($resp);
+                    }else{
+                        $catid = $this->Products_model->save('category', array('category' => strtoupper($this->post('category_new'))));
+                        $data['category'] = $catid;
+                    }
+                }
+
+                if($this->post('brand_new')!=''){
+                    $check_brand = $this->Products_model->check_brand_by_name($this->post('brand_new'));
+
+                    if($check_brand>0){
+                        $resp = array('message' => 'Brand does exist');
+                        $this->response($resp);
+                    }else{
+                        $brandid = $this->Products_model->save('brand', array('brand' => strtoupper($this->post('brand_new')) ));
+                        $data['brand'] = $brandid;
+                    }
+                }
 
                 $update = $this->Products_model->update('product', $data, array('id' => $id));
 

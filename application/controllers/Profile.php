@@ -262,10 +262,39 @@ class Profile extends REST_Controller {
 
 	}
 
+    public function uploadImage()
+    {
+        header('Access-Control-Allow-Origin: *');
+        # code...
+        $random = rand(1,99);
+        $unique_filename = $_FILES['path_photo']['name'] . $random ;
+
+        $path = PATH_PHOTO_PROFILE_DEFAULT;
+        $vfile_upload = $path . $_FILES['path_photo']['name'];
+         
+        if (move_uploaded_file($_FILES['path_photo']['tmp_name'], $vfile_upload)) {
+            echo $_FILES['path_photo']['name'];
+        } else {
+        echo $target_path;
+            echo "There was an error uploading the file, please try again!";
+        }
+    }
+
+    public function deleteImage_post()
+    {
+        # code...
+        $file_path='uploaded/images/photo/'.$this->post('file');
+        //$file_path=$this->input->post('file');
+        if (file_exists($file_path)) {
+            unlink($file_path);
+            echo json_encode(array('status' => 200, 'message' => 'Proses Delete Berhasil Dilakukan'));
+        } else {
+            // File not found.
+        }
+    }
 
 }
 ?>
-
 
 
 
