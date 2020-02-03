@@ -12,8 +12,7 @@ class Profile extends REST_Controller {
     }
 
 	public function process_profile_user_post(){
-
-        // print_r($this->post());die;
+        //print_r($this->post());die;
 
         // form validation
         $fullname = $this->post('fullname');
@@ -29,7 +28,12 @@ class Profile extends REST_Controller {
         $no_ktp = $this->post('no_ktp');
         $user_id = $this->post('user_id');
         $path_photo = $this->post('path_photo');
+
+        $kk = $this->post('kk');
+        $relatedperson = $this->post('relatedperson');
+        $relatedpersonphone = $this->post('relatedpersonphone');
           
+
         try {
     
             /*execution form*/
@@ -49,6 +53,9 @@ class Profile extends REST_Controller {
                 'gender' => $this->regex->_genRegex($gender,'RGXAZ'),
                 'no_ktp' => $this->regex->_genRegex($no_ktp,'RGXQSL'),
                 'path_photo' => $this->regex->_genRegex($path_photo,'RGXQSL'),
+                'kk' => $this->regex->_genRegex($kk,'RGXQSL'),
+                'relatedperson' => $this->regex->_genRegex($relatedperson,'RGXQSL'),
+                'relatedpersonphone' => $this->regex->_genRegex($relatedpersonphone,'RGXQSL'),
             );
     
             $user_profile = $this->db->get_where('user_profile',array('user_id' => $user_id ) )->num_rows();

@@ -145,4 +145,33 @@ class Quotation_model extends CI_Model {
 
     }
 
+    public function getQuotationEmail($id)
+    {
+        $this->db->select('email');
+        $this->db->from('quotation');
+        $this->db->where('id',$id);
+        $query = $this->db->get();
+        $result =  $query->result();   
+        if(is_array($result)){
+            return $result[0]->email;
+        } else {
+            return false;
+        }
+    }
+    public function getQuotationEmailUser($id)
+    {
+
+        $this->db->select('quotation.* , user.username as useremail');
+        $this->db->from('quotation');
+        $this->db->join('user', 'user.user_id = quotation.customer_id', 'left');
+        $this->db->where('quotation.id',$id);
+        $query = $this->db->get();
+        $result =  $query->result();   
+        if(is_array($result)){
+            return $result[0]->useremail;
+        } else {
+            return false;
+        }
+    }  
+
 }

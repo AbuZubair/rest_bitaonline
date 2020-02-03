@@ -77,16 +77,24 @@ class Quotation extends REST_Controller {
         log_message('debug','process_approve_quotation_post data : '.json_encode($this->post()));
         $id = $this->post('id');
         $user_id = $this->post('user_id');
+        $reward = $this->post('reward');
+
+
+
+
         if($id =='' || $user_id = ''){
             $resp = array('message' => 'Data tidak valid, Proses Gagal Dilakukan');
             $this->response($resp);
         }     
+
+
+        
         else {
             try {
       
                 $this->db->trans_begin();
     
-                $update = $this->Quotation_model->update('quotation', array('status' => (int)'1','updated_by' => $this->post('user_id'),'updated_date' => date('Y-m-d H:i:s')), array('id' => $id));
+                $update = $this->Quotation_model->update('quotation', array('status' => (int)'1', 'reward' => $reward,  'updated_by' => $this->post('user_id'),'updated_date' => date('Y-m-d H:i:s')), array('id' => $id));
 
         
                 log_message('debug','process_submit_quotation_post submitdata : '.json_encode($update));
@@ -100,6 +108,15 @@ class Quotation extends REST_Controller {
                 else
                 {
                     $this->db->trans_commit();
+
+                    //get quotation email
+                    $getemail = $this->Quotation_model->getQuotationEmail($id);
+                    if($getemail){
+                        if($getemail !==''){
+                            $this->sendemail($getemail,$id);
+                        }
+                    }
+                    
                     log_message('debug','process_approve_quotation_post submitdata trans_commit');
                     $this->response(array('status' => 200, 'message' => 'Proses Berhasil Dilakukan', 'data' => $id),200);
                 }
@@ -183,6 +200,16 @@ class Quotation extends REST_Controller {
                 else
                 {
                     $this->db->trans_commit();
+
+
+                    //get quotation email
+                    $getemail = $this->Quotation_model->getQuotationEmailUser($id);
+                    if($getemail){
+                        if($getemail !==''){
+                            $this->sendemail($getemail,$id);
+                        }
+                    }
+
                     log_message('debug','process_confirmpayment_quotation submitdata trans_commit');
                     $this->response(array('status' => 200, 'message' => 'Proses Berhasil Dilakukan', 'data' => $id),200);
                 }
@@ -206,20 +233,28 @@ class Quotation extends REST_Controller {
         $company_name = $this->post('company_name');
         $company_address = $this->post('company_address');
         $product = $this->post('product');
+        $productManual = $this->post('productManual');
+        $up = $this->post('up');
+        $email = $this->post('email');
+        $jabatan = $this->post('jabatan');
+
 
 
         $user_id    = $this->post('user_id');
         
 
-        if($company_name =='' || $company_address ==''){
-            $resp = array('message' => 'Data Kosong, Proses Gagal Dilakukan');
+        if($company_name =='' || $company_address =='' || $up =='' || $email =='' || $jabatan ==''){
+            $resp = array('message' => 'Data Tidak Lengkap, Proses Gagal Dilakukan');
             $this->response($resp);
         }
         if (!is_array(json_decode($product))) {
             $resp = array('message' => 'Data Produk Kosong, Proses Gagal Dilakukan');
             $this->response($resp);
         }
-
+        if (!is_array(json_decode($productManual))) {
+            $resp = array('message' => 'Data Produk Input Manual Kosong, Proses Gagal Dilakukan');
+            $this->response($resp);
+        }
         if($user_id ==''){
             $resp = array('message' => 'Data User Kosong, Proses Gagal Dilakukan');
             $this->response($resp);
@@ -233,6 +268,7 @@ class Quotation extends REST_Controller {
         $qty = [];   
         $total_amount = 0;
         $err = 0;
+        $x = 0; // next array for manual input
         foreach (json_decode($product) as $key => $value) {
             $name[$key] = $value->name;
             $img[$key] = $value->img;
@@ -246,8 +282,29 @@ class Quotation extends REST_Controller {
             if($value->price =='' || $value->price ==0  || (int)$value->price < 1 || $value->qty =='' || $value->qty ==0 || (int)$value->qty < 1){
                 $err++;
             }
+            $x++;
         }
- 
+
+
+        foreach (json_decode($productManual) as $key => $value) {
+            $name[$x] = $value->name;
+            $img[$x] = $value->img;
+            $product_id[$x] = $value->id;
+            $unit_price[$x] = $value->price;
+            $qty[$x] = (string)$value->qty;
+            $amount[$x] = $value->price * $value->qty;
+
+            $total_amount = $total_amount + $amount[$x];
+
+            if($value->price =='' || $value->price ==0  || (int)$value->price < 1 || $value->qty =='' || $value->qty ==0 || (int)$value->qty < 1){
+                $err++;
+            }
+            $x++;
+        }
+
+
+
+
         if($err>0){
             $resp = array('message' => 'Data tidak valid, Proses Gagal Dilakukan');
             $this->response($resp);
@@ -413,6 +470,20 @@ class Quotation extends REST_Controller {
         $data = $this->Profile_model->get_village($this->get('q'));
 
         $this->response(array('status' => 200, 'message' => 'Sukses', 'data' => $data),200);
+    }
+
+    public function sendemail($email,$id){
+        log_message('debug','sendemail'); 
+        $data =$this->get_detail_quotation_emailpdf($id);
+        log_message('debug','get data email : '.json_encode($data)); 
+        
+        $html = $this->load->view('quotation_pdf',$data,true);
+        $path_file = $this->pdf->print_pdf($html,'Title'.date('YmdHis').'');
+            
+        $html_email = $this->load->view('quotaion_view',$data,true);
+            
+        $this->mailer->sendemailWithAttach($email,$html_email,'Quotation',$path_file); 
+        log_message('debug','path : '.json_encode(date('YmdHis'))); 
     }
 
     public function get_email_get()
