@@ -108,6 +108,16 @@ class Products_model extends CI_Model {
         return $this->db->order_by('brand', 'asc')->get_where('brand')->result();
     }
 
+    public function get_slider()
+    {
+        return $this->db->order_by('name', 'asc')->get_where('product',array('slider' => '1'))->result();
+    }
+    public function get_featured()
+    {
+        return $this->db->order_by('name', 'asc')->get_where('product',array('featured' => '1'))->result();
+    }
+    
+
     public function get_category()
     {
         return $this->db->order_by('category', 'asc')->get_where('category')->result();

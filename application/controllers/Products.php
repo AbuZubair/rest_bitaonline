@@ -74,6 +74,20 @@ class Products extends REST_Controller {
         $this->response(array('status' => 200, 'message' => 'Sukses', 'data' => $data),200);
     }
     
+    public function get_slider_get()
+    {
+        
+        $data = $this->Products_model->get_slider();
+
+        $this->response(array('status' => 200, 'message' => 'Sukses', 'data' => $data),200);
+    }
+    public function get_featured_get()
+    {
+        
+        $data = $this->Products_model->get_featured();
+
+        $this->response(array('status' => 200, 'message' => 'Sukses', 'data' => $data),200);
+    }
     
     public function process_insert_product_post()
     {
