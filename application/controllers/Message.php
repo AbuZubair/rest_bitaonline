@@ -123,6 +123,50 @@ class Message extends REST_Controller {
         }
     }
 
+    public function process_pushnotif_post()
+    {
+        $data = $this->post();
+        $key = 'AAAAPcydNA0:APA91bFr18GykidxKI29Z0mFVN7fx3w8j5gsnEqNy97MPnFQUCujLz-5xT-yruO0rUhmibLry3vxUFVynV4Bg1I00iuMA0WfQmLVBSmgFAfzIg9TjvZMPpho_sdMEW9L0MNfjNcXk7LC';
+
+		$url = "https://fcm.googleapis.com/fcm/send";
+ 
+		$ch = curl_init();
+		curl_setopt($ch, CURLOPT_URL,$url);
+		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+		curl_setopt($ch, CURLOPT_POST, true);
+		curl_setopt($ch, CURLOPT_POSTFIELDS, $data[0]);
+		
+		// Set HTTP Header for POST request 
+		curl_setopt($ch, CURLOPT_HTTPHEADER, array(
+			'Content-Type: application/json',
+			'Authorization : key=' .$key)
+		);
+		
+		$result = curl_exec($ch);
+
+		if(curl_errno($ch))
+		{
+            log_message('error','error_curl_pushnotif : '.curl_error($ch));
+
+			$error_msg = curl_error($ch);
+			
+		}else{
+			log_message('debug','result : '.$result);
+		}
+	
+		curl_close($ch);
+
+		if (isset($error_msg)) {
+			$arr = array(
+				'status' => -1,
+				'message' => $error_msg
+			);
+			$result = json_encode($arr);
+		}
+
+		$this->response(array('status' => 200, 'message' => 'Proses Berhasil Dilakukan', 'data' => $result),200);
+    }
+
 
 }
 ?>

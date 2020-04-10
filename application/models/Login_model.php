@@ -46,7 +46,7 @@ class Login_model extends CI_Model {
     }
 
     public function get_hash_password($usr){
-        $query = $this->db->select('user.user_id, user.username, user.password, user.last_logon, user.fullname, user.phone_no,user.level_id , user_profile.path_photo')
+        $query = $this->db->select('user.user_id, user.username, user.password, user.last_logon, user.fullname, user.token_fcm, user.phone_no,user.level_id , user_profile.path_photo')
                           ->join('user_profile','user_profile.user_id=user.user_id','left')
                           ->get_where('user', array('username' => $usr, 'user.is_active' => 'Y','user.is_approved' => 'Y'))->row();
                           

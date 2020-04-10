@@ -28,7 +28,7 @@ class Profile_model extends CI_Model {
 
         if( $this->db->update('user_profile', $dataexc, array('user_id' => $user_id)) ){
           
-            return $this->db->get_where('user_profile', array('user_id' => $user_id));
+            return $this->db->get_where('user_profile', array('user_id' => $user_id))->row();
 
         }else{
 
@@ -65,6 +65,36 @@ class Profile_model extends CI_Model {
     {
         
         return $this->db->order_by('name', 'asc')->get_where('villages',array('district_id' => $q))->result();
+
+    }
+
+    public function get_profile($id)
+    {
+        
+        return $this->db->get_where('user_profile', array('user_id' => $id))->row();
+
+    }
+
+    public function get_profile_by_id($id){
+
+        $query = $this->db->get_where('user_profile', array('user_id' => $id));
+        return $query->row();
+
+    }
+
+    public function get_by_id($id){
+
+        $query = $this->db->select('user.user_id, user.username, user.password, user.last_logon, user.fullname, user.token_fcm, user.phone_no,user.level_id , user_profile.path_photo')
+        ->join('user_profile','user_profile.user_id=user.user_id','left')
+        ->get_where('user', array('user.user_id' => $id))->row();
+        return $query;
+
+    }
+
+    public function get_token_admin(){
+
+        $query = $this->db->get_where('user', array('user_id' => 1))->row();
+        return $query;
 
     }
 

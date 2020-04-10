@@ -153,6 +153,14 @@ class Profile extends REST_Controller {
         $this->response(array('status' => 200, 'message' => 'Sukses', 'data' => $data),200);
     }
 
+    public function get_profile_get()
+    {
+        
+        $data = $this->Profile_model->get_profile_by_id($this->get('id'));
+
+        $this->response(array('status' => 200, 'message' => 'Sukses', 'data' => $data),200);
+    }
+
 	function get_client_ip() {
 		$ipaddress = '';
 		if (getenv('HTTP_CLIENT_IP'))
@@ -269,22 +277,85 @@ class Profile extends REST_Controller {
 
 	}
 
-    public function uploadImage()
-    {
-        header('Access-Control-Allow-Origin: *');
-        # code...
-        $random = rand(1,99);
-        $unique_filename = $_FILES['path_photo']['name'] . $random ;
+    public function process_upload_header_post(){
 
-        $path = PATH_PHOTO_PROFILE_DEFAULT;
-        $vfile_upload = $path . $_FILES['path_photo']['name'];
-         
-        if (move_uploaded_file($_FILES['path_photo']['tmp_name'], $vfile_upload)) {
-            echo $_FILES['path_photo']['name'];
-        } else {
-        echo $target_path;
-            echo "There was an error uploading the file, please try again!";
+        try {
+
+            /*execution form*/
+
+            $this->db->trans_begin();
+
+            $dataexc = array(
+                'path_photo_header' => trim($this->post('path_photo_header')),
+                'updated_date' => date('Y-m-d H:i:s'),
+            );
+
+            $this->Profile_model->update_profile_user($dataexc,$this->post('user_id'));
+
+            $user_profile = $this->Profile_model->get_profile_by_id($this->post('user_id'));
+               
+            if ($this->db->trans_status() === FALSE)
+            {
+                $this->db->trans_rollback();
+                $this->response(array('status' => 301, 'message' => 'Maaf Proses Gagal Dilakukan', 'data' => $data),301);
+            }
+            else
+            {
+                $this->db->trans_commit();
+                $this->response(array('status' => 200, 'message' => 'Proses Berhasil Dilakukan', 'data' => $user_profile),200);
+            }
+
+
+        } catch (Exception $e) {
+            
+            $resp = array(
+                'message' => $e->getMessage(),
+            );
+
+            $this->response($resp, 500);
+
         }
+
+    }
+
+    public function process_upload_ava_post(){
+
+        try {
+
+
+            $this->db->trans_begin();
+
+            $dataexc = array(
+                'path_photo' => trim($this->post('path_photo')),
+                'updated_date' => date('Y-m-d H:i:s')
+            );
+
+            $this->Profile_model->update_profile_user($dataexc,$this->post('user_id'));
+
+            $user_profile = $this->Profile_model->get_profile_by_id($this->post('user_id'));
+               
+            if ($this->db->trans_status() === FALSE)
+            {
+                $this->db->trans_rollback();
+                $this->response(array('status' => 301, 'message' => 'Maaf Proses Gagal Dilakukan', 'data' => $data),301);
+            }
+            else
+            {
+                $this->db->trans_commit();
+                $this->response(array('status' => 200, 'message' => 'Proses Berhasil Dilakukan', 'data' => $user_profile),200);
+            }
+
+
+        } catch (Exception $e) {
+            
+            $resp = array(
+                'message' => $e->getMessage(),
+            );
+
+            $this->response($resp, 500);
+
+        }
+
     }
 
     public function deleteImage_post()
@@ -294,10 +365,66 @@ class Profile extends REST_Controller {
         //$file_path=$this->input->post('file');
         if (file_exists($file_path)) {
             unlink($file_path);
-            echo json_encode(array('status' => 200, 'message' => 'Proses Delete Berhasil Dilakukan'));
+            $this->response(array('status' => 200, 'message' => 'Proses Berhasil Dilakukan'),200);
         } else {
             // File not found.
         }
+    }
+
+    public function process_token_fcm_post(){
+
+		$user_id = $this->post('user_id');
+		$token = $this->post('tokens_');
+
+		try {
+
+            $this->db->trans_begin();
+
+            $this->Profile_model->update('user', array('token_fcm' => $token), array('user_id' => $user_id));
+
+            if ($this->db->trans_status() === FALSE)
+            {
+                $this->db->trans_rollback();
+                
+                $resp = array(
+                    'message' => 'Maaf Proses Gagal Dilakukan',
+                );
+
+                $this->response($resp, 301);
+        
+            }
+            else
+            {
+                $this->db->trans_commit();
+                $user = $this->Profile_model->get_by_id($user_id);
+                $resp = array(
+                    'status' => 200,
+                    'message' => 'Proses Berhasil Dilakukan',
+                    'user' =>  $user
+                );
+
+                $this->response($resp, 200);
+        
+            }
+    
+
+        } catch (Exception $e) {
+            $resp = array(
+                'message' => $e->getMessage(),
+            );
+
+            $this->response($resp, 500);
+        }
+		
+
+    }
+    
+    public function get_token_admin_get()
+    {
+        
+        $data = $this->Profile_model->get_token_admin();
+
+        $this->response(array('status' => 200, 'message' => 'Sukses', 'token' => $data->token_fcm),200);
     }
 
 }

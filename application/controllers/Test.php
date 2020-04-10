@@ -64,6 +64,24 @@ class Test extends CI_Controller  {
 
     }
 
+    public function uploadImage()
+    {
+        header('Access-Control-Allow-Origin: *');
+        # code...
+        $random = rand(1,99);
+        $unique_filename = $_FILES['path_photo']['name'] . $random ;
+
+        $path = PATH_PHOTO_PROFILE_DEFAULT;
+        $vfile_upload = $path . $_FILES['path_photo']['name'];
+         
+        if (move_uploaded_file($_FILES['path_photo']['tmp_name'], $vfile_upload)) {
+            echo $_FILES['path_photo']['name'];
+        } else {
+        echo $target_path;
+            echo "There was an error uploading the file, please try again!";
+        }
+    }
+
 }
 ?>
 

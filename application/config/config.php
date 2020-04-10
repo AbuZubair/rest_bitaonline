@@ -23,8 +23,8 @@ date_default_timezone_set('Asia/Jakarta');
 | a PHP script and you can easily do that on your own.
 |
 */
-// $config['base_url'] = 'http://localhost/rest_ci';
-$config['base_url'] = 'http://localhost/rendy/hydromart/api/ws_hydromart';
+$config['base_url'] = 'http://localhost/rest_ci';
+// $config['base_url'] = 'http://localhost/rendy/hydromart/api/ws_hydromart';
 
 
 /*

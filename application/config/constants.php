@@ -89,4 +89,6 @@ define('EMAIL_ADMIN', 'aldo.kun@gmail.com');
 define('PATH_LOGO', 'http://localhost:8100/assets/imgs/Hydromart_logo.png');
 define('PATH_IMG', 'http://localhost:8100/assets/imgs/');
 define('PATH_PDF', 'rendy/hydromart/api/ws_hydromart');
+define('PATH_IMG_DEFAULT', 'uploaded/images/');
+define('PATH_PHOTO_PROFILE_DEFAULT', 'uploaded/images/photo/');
 
