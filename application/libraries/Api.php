@@ -50,8 +50,8 @@ final Class Api {
             $phone = (substr($data['phone'], 0,1) == '0')?"62".substr($data['phone'],1)."":"".$data['phone']."";
             ob_start();
             // setting 
-            $apikey      = 'df7abde97b3c6e944658806371f095d9'; // api key 
-            $urlserver   = 'http://45.32.107.195/sms/api_sms_otp_send_json.php'; // url server sms 
+            $apikey      = ''; // api key 
+            $urlserver   = ''; // url server sms 
             $callbackurl = ''; // url callback get status sms 
             $senderid    = '0'; // Option senderid 0=Sms Long Number / 1=Sms Masking/Custome Senderid
 
