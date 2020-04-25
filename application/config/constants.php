@@ -84,11 +84,6 @@ defined('EXIT_DATABASE')       OR define('EXIT_DATABASE', 8); // database error
 defined('EXIT__AUTO_MIN')      OR define('EXIT__AUTO_MIN', 9); // lowest automatically-assigned error code
 defined('EXIT__AUTO_MAX')      OR define('EXIT__AUTO_MAX', 125); // highest automatically-assigned error code
 
-// define('EMAIL_ADMIN', 'rendyapriyando@gmail.com');
-define('EMAIL_ADMIN', 'aldo.kun@gmail.com');
-define('PATH_LOGO', 'http://localhost:8100/assets/imgs/Hydromart_logo.png');
-define('PATH_IMG', 'http://localhost:8100/assets/imgs/');
-define('PATH_PDF', 'rendy/hydromart/api/ws_hydromart');
 define('PATH_IMG_DEFAULT', 'uploaded/images/');
 define('PATH_PHOTO_PROFILE_DEFAULT', 'uploaded/images/photo/');
 define('PATH_FILE_PROFILE_DEFAULT', 'uploaded/files/');
