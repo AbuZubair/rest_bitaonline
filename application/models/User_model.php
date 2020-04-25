@@ -10,7 +10,6 @@ class User_model extends CI_Model {
 
     public function save($table, $data)
 	{
-		/*insert masakindo_resep*/
 		$this->db->insert($table, $data);
 		
 		return $this->db->insert_id();;
@@ -21,19 +20,17 @@ class User_model extends CI_Model {
 
         $query = $this->db->update($table, $data, $where);
         $result = $this->db->affected_rows();
-        log_message('debug','Products_model save query : '.json_encode($this->db->last_query()));
-        log_message('debug','Products_model save insert_id : '.json_encode($result));
-
+      
 		return $result;
 	}
  
-    public function get_all_user($q,$n)
+    public function get_all_user($id)
     {
+        $this->db->select('user.* , user_profile.path_photo');
         $this->db->from('user');
-        $this->db->where('is_active','Y');
+        $this->db->join('user_profile', 'user.user_id = user_profile.user_id', 'left');
         $this->db->where('is_deleted','N');
-        if($q!='')$this->db->like('fullname',$q);
-        $this->db->limit($n);
+        $this->db->where("user.user_id != ".$id." ");
         $query = $this->db->get();
         return $query->result();
     }    
@@ -51,33 +48,7 @@ class User_model extends CI_Model {
         $query = $this->db->get();
         return $query->result();
 
-
-
-        // $this->db->select('product.* , category.category as categoryname, brand.brand as brandname');
-        // $this->db->from('product');
-        // $this->db->join('category', 'product.category = category.id', 'left');
-        // $this->db->join('brand', 'product.brand = brand.id', 'left');
-
-        // $this->db->where('product.id',$n);
-        // $query = $this->db->get();
-        // return $query->result();
-
     }
 
-    public function get_all_data_pending()
-    {
-        // $query = "SELECT user_profile.*,user.*,regencies.name
-        //             FROM user_profile
-        //             left join user on user.user_id=user_profile.user_id
-        //             LEFT JOIN regencies on user_profile.regency = regencies.id
-        //             WHERE user.is_approved = 'N'";
-        $query = "SELECT *
-        FROM user 
-        WHERE is_approved = 'N' and is_deleted='N' order by created_date desc";
-        $result = $this->db->query($query)->result();    
-        log_message('debug','get_all_data_pending query : '.json_encode($this->db->last_query()));
-        return $result;
-        
-    }
 
 }

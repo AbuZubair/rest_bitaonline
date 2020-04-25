@@ -83,7 +83,7 @@ $db['default'] = array(
 
 	'password' => '',
 
-	'database' => 'hydromart',
+	'database' => 'bitaonline',
 
 	'dbdriver' => 'mysqli',
 

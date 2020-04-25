@@ -96,6 +96,7 @@ final Class Api {
                     'globalstatustext' => $curl_errno."|".$http_code)
                 );
                 $respon=json_encode($senddatax);
+                log_message('info', 'sending sms'.$respon);
             } else {
                 if ($http_code<>"200") {
                     $senddatax = array(
@@ -104,8 +105,10 @@ final Class Api {
                         'globalstatustext' => $curl_errno."|".$http_code)
                     );
                     $respon= json_encode($senddatax);	
+                    log_message('info', 'sending sms'.$respon);
                 }
             }		
+            log_message('info', 'sending sms'.json_encode($respon));
             header('Content-Type: application/json');
             return true;
         } else{

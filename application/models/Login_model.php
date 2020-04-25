@@ -32,7 +32,8 @@ class Login_model extends CI_Model {
         log_message('debug','check_account - > '.json_encode($data));
         /*validate account*/
         if($data){
-            
+            log_message('debug','pwd1 - > '.json_encode($pass));
+            log_message('debug','pwd2 - > '.json_encode($data->password));
             if($this->bcrypt->check_password($pass,$data->password)){
                 return $data;
             }else{
@@ -46,9 +47,9 @@ class Login_model extends CI_Model {
     }
 
     public function get_hash_password($usr){
-        $query = $this->db->select('user.user_id, user.username, user.password, user.last_logon, user.fullname, user.token_fcm, user.phone_no,user.level_id , user_profile.path_photo')
+        $query = $this->db->select('user.user_id, user.username, user.password, user.last_logon, user.fullname, user.phone_no,user.level_id , user_profile.path_photo')
                           ->join('user_profile','user_profile.user_id=user.user_id','left')
-                          ->get_where('user', array('username' => $usr, 'user.is_active' => 'Y','user.is_approved' => 'Y'))->row();
+                          ->get_where('user', array('username' => $usr, 'user.is_active' => 'Y'))->row();
                           
         if($query){
             return $query;
@@ -156,12 +157,50 @@ class Login_model extends CI_Model {
 
 
 
+    public function get_judul($user_id){
+        
+        $judul = $this->db->get_where('judul', array('user_id' => $user_id))->row();
+
+        if(!empty($judul)){
+            return $judul;
+        }else{
+            return false;
+        }
+    }
+
+    public function get_judul_by_dosen($user_id){
+
+        $qry = "SELECT a.*, b.fullname as mahasiswa_string FROM judul a
+                LEFT JOIN user b ON a.user_id=b.user_id  
+                WHERE a.dospem = ".$user_id." order by approval,created_date DESC";
+        $judul = $this->db->query($qry)->result();
+        
+        // $judul = $this->db->order_by('created_date','desc')->order_by('approval','asc')->get_where('judul', array('dospem' => $user_id))->result();
+
+        if(!empty($judul)){
+            return $judul;
+        }else{
+            return false;
+        }
+    }
 
 
+    public function get_jadwalbimbingan($user_id,$level){
 
+        $level = ($level==2)?'mahasiswa':'dospem';
 
-
-
+        $qry = "SELECT a.*, b.fullname as dosen_string, c.fullname as mahasiswa_string, TIMEDIFF( NOW() , str_to_date(jadwal, '%Y-%m-%d %H:%i:%s')) as selisih FROM jadwal_bimbingan a
+                LEFT JOIN user b ON a.dospem=b.user_id  
+                LEFT JOIN user c ON a.mahasiswa=c.user_id 
+                WHERE a.".$level." = ".$user_id." order by status ASC,abs(TIMEDIFF( NOW() , str_to_date(jadwal, '%Y-%m-%d %H:%i:%s')))";
+        $jadwal = $this->db->query($qry)->result();
+        
+        if(!empty($jadwal)){
+            return $jadwal;
+        }else{
+            return false;
+        }
+    }
 
 	
 	public function get_key($user_id)
@@ -200,9 +239,9 @@ class Login_model extends CI_Model {
 		return $key;
     }
     
-    public function get_by_email($id){
+    public function get_by_username($id){
 
-        $query = $this->db->get_where('user', array('username' => $id,'is_active' => 'Y'));
+        $query = $this->db->get_where('user', array('username' => $id));
         return $query->num_rows();
 
     }
@@ -235,5 +274,14 @@ class Login_model extends CI_Model {
     public function update_status_account($ref_id,$flag_active){
         return $this->db->update('user', array('is_active' => $flag_active), array('user_id' => $ref_id) );
     }
+
+    public function update($table,$data, $where)
+	{
+
+        $query = $this->db->update($table, $data, $where);
+        $result = $this->db->affected_rows();
+      
+		return $result;
+	}
 
 }

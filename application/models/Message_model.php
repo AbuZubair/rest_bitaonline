@@ -13,7 +13,7 @@ class Message_model extends CI_Model {
 		/*insert masakindo_resep*/
 		$this->db->insert($table, $data);
 		
-		return $this->db->insert_id();;
+		return $this->db->insert_id();
 	}
 
     public function update($table,$where, $data)
@@ -22,11 +22,11 @@ class Message_model extends CI_Model {
 		return $this->db->affected_rows();
     }
     
-    public function create_room_by_id($q)
+    public function create_room_by_id($q,$r)
     {
-        $this->db->insert('room_chat',array('room_participant1_id'=>$q, 'room_participant2_id' => 1));
+        $this->db->insert('room_chat',array('room_participant1_id'=>$q, 'room_participant2_id' => $r));
 
-        $this->get_room_by_id($q);
+        return $this->db->insert_id();
     }
  
     public function get_room_by_id($q)
@@ -63,5 +63,23 @@ class Message_model extends CI_Model {
 
     }
     
+    public function get_contact_list($id)
+    {
+      
+        $query = "SELECT a.*,b.fullname as mahasiswa, c.path_photo, c.jurusan, c.angkatan, x.unread FROM judul a
+                    LEFT JOIN user b ON a.user_id=b.user_id
+                    LEFT JOIN user_profile c ON a.user_id=c.user_id
+                    LEFT JOIN (SELECT COUNT(chat_id) AS unread,chat_sender_id  FROM chat WHERE is_read='N' AND chat_receiver_id=".$id." GROUP BY room_id) x ON x.chat_sender_id=a.user_id
+                    WHERE a.dospem=".$id." ";
+        $result = $this->db->query($query)->result();
+
+        if(!empty($result)){
+            return $result;
+        }else{
+            return false;
+        }
+
+    }
+
 
 }

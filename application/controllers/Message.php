@@ -23,7 +23,10 @@ class Message extends REST_Controller {
 
 			$unread = $this->master->thousandsCurrencyFormat($sum_unread);
 		}else{
-            $data = $this->Message_model->create_room_by_id($this->get('q'));
+            if(isset($_GET['r'])){
+                $this->Message_model->create_room_by_id($this->get('q'),$this->get('r'));
+                $data = $this->Message_model->get_room_by_id($this->get('q'));
+            }
         }
                
 		
@@ -32,10 +35,29 @@ class Message extends REST_Controller {
 			'data' => $data,
 			'sum_unread' =>$unread,
 		);
-
 		
         $this->response($resp, 200);
-	}
+    }
+    
+    public function get_room_by_id_dosen_get()
+    {
+        $dosen = $this->get('id');
+        $mahasiswa = $this->get('mahasiswa');
+        
+        $data = $this->Message_model->get_room($dosen,$mahasiswa);
+        
+		if(empty($data)){
+            $this->Message_model->create_room_by_id($dosen,$mahasiswa);
+            $data = $this->Message_model->get_room($dosen,$mahasiswa);
+		}
+               		
+		$resp = array(
+			'status' => 200,
+			'data' => $data
+		);
+		
+        $this->response($resp, 200);
+    }
 	
 	public function get_room_get()
     {
@@ -43,7 +65,17 @@ class Message extends REST_Controller {
         $data = $this->Message_model->get_room($this->get('q'), $this->get('r'));
 
         $this->response(array('status' => 200, 'message' => 'Sukses', 'data' => $data),200);
-	}
+    }
+    
+    public function get_contact_list_get()
+    {
+  
+        $data = $this->Message_model->get_contact_list($this->get('id'));
+
+        $room = $this->Message_model->get_room_by_id($this->get('id'));
+
+        $this->response(array('status' => 200, 'message' => 'Sukses', 'data' => $data),200);
+    }
 	
 	public function get_chat_get()
     {
@@ -123,50 +155,7 @@ class Message extends REST_Controller {
         }
     }
 
-    public function process_pushnotif_post()
-    {
-        $data = $this->post();
-        $key = 'AAAAPcydNA0:APA91bFr18GykidxKI29Z0mFVN7fx3w8j5gsnEqNy97MPnFQUCujLz-5xT-yruO0rUhmibLry3vxUFVynV4Bg1I00iuMA0WfQmLVBSmgFAfzIg9TjvZMPpho_sdMEW9L0MNfjNcXk7LC';
-
-		$url = "https://fcm.googleapis.com/fcm/send";
- 
-		$ch = curl_init();
-		curl_setopt($ch, CURLOPT_URL,$url);
-		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-		curl_setopt($ch, CURLOPT_POST, true);
-		curl_setopt($ch, CURLOPT_POSTFIELDS, $data[0]);
-		
-		// Set HTTP Header for POST request 
-		curl_setopt($ch, CURLOPT_HTTPHEADER, array(
-			'Content-Type: application/json',
-			'Authorization : key=' .$key)
-		);
-		
-		$result = curl_exec($ch);
-
-		if(curl_errno($ch))
-		{
-            log_message('error','error_curl_pushnotif : '.curl_error($ch));
-
-			$error_msg = curl_error($ch);
-			
-		}else{
-			log_message('debug','result : '.$result);
-		}
-	
-		curl_close($ch);
-
-		if (isset($error_msg)) {
-			$arr = array(
-				'status' => -1,
-				'message' => $error_msg
-			);
-			$result = json_encode($arr);
-		}
-
-		$this->response(array('status' => 200, 'message' => 'Proses Berhasil Dilakukan', 'data' => $result),200);
-    }
-
+   
 
 }
 ?>

@@ -100,12 +100,13 @@ class Login extends CI_Controller {
 		$this->readInput();
 
 		$this->load->model('Login_model','login_model');
+		$this->load->model('Message_model');
 		$this->load->library('bcrypt');
     
 	}
 
 	public function index(){
-				
+
 		$username = $this->getInput('username');
 		$password = $this->getInput('password');
 
@@ -124,7 +125,7 @@ class Login extends CI_Controller {
 				
 			$menu = $this->login_model->get_menu($result->level_id);
 			if($menu)$menu_user = $menu;
-			
+					
 			/*update last logon user*/
 			$this->login_model->last_logon($result->username,$result->password);
 			
@@ -136,10 +137,45 @@ class Login extends CI_Controller {
             $data = array(
                         'logged' => TRUE, 
                         'user' => $result, 
-						'user_profile' => isset($user_profile)?$user_profile:[],
+						'user_profile' => isset($user_profile)?$user_profile:'',
 						'menu' => isset($menu_user)?$menu_user:[],
-                    );
+					);
+					
+			if($result->level_id==2){
+				$judul = $this->login_model->get_judul($result->user_id);
+				if($judul)$judul_user = $judul;
 
+				$data['judul'] = isset($judul)?$judul:'';
+
+			}else if($result->level_id==3){
+				$judul = $this->login_model->get_judul_by_dosen($result->user_id);
+				if($judul)$judul_user = $judul;
+
+				$data['judul'] = isset($judul)?$judul:'';
+			}
+
+			$jadwalbimbingan = $this->login_model->get_jadwalbimbingan($result->user_id,$result->level_id);
+			if($jadwalbimbingan)$jadwalbimbingan_user = $jadwalbimbingan;
+
+			$data['jadwal_bimbingan'] = isset($jadwalbimbingan)?$jadwalbimbingan:'';
+
+
+			$room = $this->Message_model->get_room_by_id($result->user_id);
+			$sum_unread=$unread=0;
+
+			if(!empty($room)){
+				foreach ($room as $value) {
+					if($value->unread!=null){
+						$sum_unread += $value->unread;
+					}
+				}
+
+				$unread = $this->master->thousandsCurrencyFormat($sum_unread);
+			}
+
+			$data['sum_unread'] = $unread;
+				
+			
             $response = array(
 				'status' => 200,
 				'message' => $this->getHttpStatusMessage(200),
@@ -168,66 +204,74 @@ class Login extends CI_Controller {
         $this->login_model->clear_token($this->session->userdata('user')->user_id);
     }
 
-	// public function ping()
-	// {
-	// 	$this->log('Call API ping');
-	// 	echo '{"code":"200", "status":"success", "message":"ping"}';
-	// }
-
+	
 	public function process_register(){
 
-		$email = $this->getInput('email');
-		$phone_number = $this->getInput('phone_number');
+		$username = $this->getInput('username');
+		$phone_number = $this->getInput('phone');
 		$fullname = $this->getInput('fullname');
 		$security_code = $this->getInput('security_code');
 		$confirm_security_code = $this->getInput('confirm_security_code');
+		$user_id = $this->getInput('user_id');
 
-		$user = $this->login_model->get_by_email($email);
+		$user = $this->login_model->get_by_username($username);
 
-		if($user==0){
+		if($user==0 || $user_id!=''){
 
 			$this->db->trans_begin();
 
 			$dataexc = array(
-				'username' => $this->regex->_genRegex($email,'RGXQSL'),
+				'username' => $this->regex->_genRegex($username,'RGXQSL'),
 				'phone_no' => $this->regex->_genRegex($phone_number,'RGXQSL'),
-				'password' => $this->bcrypt->hash_password($security_code),
 				'fullname' => $this->regex->_genRegex($fullname,'RGXQSL'),
-				'created_date' => date('Y-m-d H:i:s'),
-				'security_code' => rand(9, 9999),
+				'level_id' => $this->getInput('level_id'),
 			);
 
-			if(isset($_POST['level_id']))$dataexc['level_id'] = $this->getInput('level_id');
+			if($user_id!=''){
+				$dataexc['is_active'] =  $this->getInput('is_active');
+                $dataexc['updated_date'] = date('Y-m-d H:i:s');
+                $this->login_model->update('user',$dataexc,array('user_id' => $user_id));
+                $newId = $user_id;
+
+                $message = "User berhasil di update";
+            }else{
+				 $dataexc['is_active'] = 'N';
+				 $dataexc['security_code'] = rand(1000, 9999);
+                $dataexc['password'] = $this->bcrypt->hash_password($security_code);
+                $dataexc['created_date'] = date('Y-m-d H:i:s');
+
+                /*save post data*/
+                $newId = $this->login_model->save_acc_register($dataexc);
+
+                /*get new data register*/
+                $newData = $this->login_model->get_by_id($newId);
+
+                /*create key */
+                $keyexec = array(
+                    'user_id' => $newId,
+                    'key' => sha1(date('mYd').$newData->username),
+                    'level' => 1,
+                    'ip_addresses' => $this->get_client_ip(),
+                    'date_created' => date('Y-m-d H:i:s')
+                );
+
+                $this->login_model->create_key($keyexec);
+
+				$message = "User berhasil ditambahkan";
 				
-			/*save post data*/
-			$newId = $this->login_model->save_acc_register($dataexc);
+				/*send notification by sms*/
 
-			/*get new data register*/
-			$newData = $this->login_model->get_by_id($newId);
+				$config_sms = array(
+					'from' => 'Bitaonline',
+					'phone' => $newData->phone_no,
+					'message' => '(no-reply) Bitaonline : Kode Verifikasi anda '.$newData->security_code.'',
+					);
 
-			/*create key */
-			$keyexec = array(
-				'user_id' => $newId,
-				'key' => sha1(date('mYd').$newData->username),
-				'level' => 1,
-				'ip_addresses' => $this->get_client_ip(),
-				'date_created' => date('Y-m-d H:i:s')
-			);
-
-			$this->login_model->create_key($keyexec);
-			
-			/*send notification by sms*/
-
-			$config_sms = array(
-			    'from' => 'Hydromart',
-			    'phone' => $newData->phone_no,
-			    'message' => '(no-reply) Hydromart : Kode Verifikasi anda '.$newData->security_code.'',
-			    );
-
-			$send_sms = $this->api->adsmedia_send_sms($config_sms);
-			
-			/*end send notification by sms*/
-
+				$send_sms = $this->api->adsmedia_send_sms($config_sms);
+				
+				/*end send notification by sms*/
+            }		
+					
 
 			if ($this->db->trans_status() === FALSE)
 			{
@@ -237,104 +281,20 @@ class Login extends CI_Controller {
 			else
 			{
 				$this->db->trans_commit();
-				$hash_security_code = $this->bcrypt->hash_password($dataexc['security_code']);
-				echo json_encode(array('status' => 200, 'message' => 'Silahkan Verifikasi Code yang dikirimkan via SMS', 'verifikasi_code' => $dataexc['security_code'], 'uid' => $hash_security_code,'id' => $newId ));
+
+				if($user_id!=''){
+					echo json_encode(array('status' => 200, 'message' => 'Proses berhasil, '.$message.'', 'id' => $newId ));
+				}else{
+					$hash_security_code = $this->bcrypt->hash_password($dataexc['security_code']);
+					echo json_encode(array('status' => 200, 'message' => 'Silahkan Verifikasi Code yang dikirimkan via SMS', 'verifikasi_code' => $dataexc['security_code'], 'uid' => $hash_security_code,'id' => $newId ));
+				}
+				
 			}
 		}else{
-			echo json_encode(array('status' => 301, 'message' => 'Maaf Email Sudah digunakan'));
+			echo json_encode(array('status' => 301, 'message' => 'Maaf Username Sudah digunakan'));
 		}
 
 	}
-
-	// public function process_register_byadmin(){
-
-	// 	$email = $this->getInput('email');
-	// 	$phone_number = $this->getInput('phone_number');
-	// 	$fullname = $this->getInput('fullname');
-	// 	$security_code = $this->getInput('security_code');
-	// 	$confirm_security_code = $this->getInput('confirm_security_code');
-	// 	$level_id = $this->getInput('level_id');
-
-	// 	if($email =='' || $phone_number ==''|| $fullname ==''|| $security_code ==''|| $level_id ==''){
-	// 		log_message('debug','process_register_byadmin some data empty');
-	// 		echo json_encode(array('status' => 301, 'message' => 'Form data tidak lengkap'));
-	// 		exit();
-	// 	}
-
-	// 	var_dump($_POST); die();
-
-	// 	$user = $this->login_model->get_by_email($email);
-
-	// 	if($user==0){
-
-	// 		$this->db->trans_begin();
-
-	// 		$dataexc = array(
-	// 			'username' => $this->regex->_genRegex($email,'RGXQSL'),
-	// 			'phone_no' => $this->regex->_genRegex($phone_number,'RGXQSL'),
-	// 			'password' => $this->bcrypt->hash_password($security_code),
-	// 			'fullname' => $this->regex->_genRegex($fullname,'RGXQSL'),
-	// 			'created_date' => date('Y-m-d H:i:s'),
-	// 			'security_code' => rand(9, 9999),
-	// 			'is_active' => 'Y'
-	// 		);
-
-	// 		log_message('debug','process_register_byadmin dataexc : '.json_encode($dataexc));
-
-	// 		if(isset($_POST['level_id']))$dataexc['level_id'] = $this->getInput('level_id');
-				
-	// 		/*save post data*/
-	// 		$newId = $this->login_model->save_acc_register($dataexc);
-
-	// 		/*get new data register*/
-	// 		$newData = $this->login_model->get_by_id($newId);
-
-	// 		/*create key */
-	// 		$keyexec = array(
-	// 			'user_id' => $newId,
-	// 			'key' => sha1(date('mYd').$newData->username),
-	// 			'level' => 1,
-	// 			'ip_addresses' => $this->get_client_ip(),
-	// 			'date_created' => date('Y-m-d H:i:s')
-	// 		);
-
-	// 		log_message('debug','process_register_byadmin keyexec : '.json_encode($keyexec));
-
-	// 		$this->login_model->create_key($keyexec);
-			
-	// 		// /*send notification by sms*/
-
-	// 		// $config_sms = array(
-	// 		//     'from' => 'Hydromart',
-	// 		//     'phone' => $newData->phone_no,
-	// 		//     'message' => '(no-reply) Hydromart : Kode Verifikasi anda '.$newData->security_code.'',
-	// 		//     );
-
-	// 		// $send_sms = $this->api->adsmedia_send_sms($config_sms);
-			
-	// 		// /*end send notification by sms*/
-
-
-	// 		if ($this->db->trans_status() === FALSE)
-	// 		{
-	// 			log_message('debug','process_register_byadmin gagal');
-	// 			$this->db->trans_rollback();
-	// 			echo json_encode(array('status' => 301, 'message' => 'Maaf Proses Gagal Dilakukan'));
-	// 		}
-	// 		else
-	// 		{
-	// 			log_message('debug','process_register_byadmin sukses');
-	// 			$this->db->trans_commit();
-	// 			echo json_encode(array('status' => 200, 'message' => 'Sukses registrasi'));
-	// 			// $hash_security_code = $this->bcrypt->hash_password($dataexc['security_code']);
-	// 			// echo json_encode(array('status' => 200, 'message' => 'Silahkan Verifikasi Code yang dikirimkan via SMS', 'verifikasi_code' => $dataexc['security_code'], 'uid' => $hash_security_code,'id' => $newId ));
-	// 		}
-	// 	}else{
-	// 		log_message('debug','process_register_byadmin email used');
-	// 		echo json_encode(array('status' => 301, 'message' => 'Maaf Email Sudah digunakan'));
-	// 	}
-
-	// }
 	
 	
 	public function send_sms()
@@ -346,9 +306,9 @@ class Login extends CI_Controller {
 		/*send notification by sms*/
 
          $config_sms = array(
-             'from' => 'Hydromart',
+             'from' => 'Bitaonline',
              'phone' => $newData->phone_no,
-             'message' => '(no-reply) Hydromart : Kode Verifikasi anda '.$newData->security_code.'',
+             'message' => '(no-reply) Bitaonline : Kode Verifikasi anda '.$newData->security_code.'',
              );
 
          $send_sms = $this->api->adsmedia_send_sms($config_sms);
@@ -365,7 +325,6 @@ class Login extends CI_Controller {
 	public function process_verification(){
         /*find security code*/
         $security_code = $this->getInput('key');
-
         /*check security code*/
         $find = $this->login_model->verifikasi_security_code($security_code);
         if (count($find) > 0) {
@@ -373,7 +332,7 @@ class Login extends CI_Controller {
             $this->login_model->update_status_account($find[0]->user_id, 'Y');
             
             /*show message success*/
-            echo json_encode(array('status' => '200', 'message' => 'Verifikasi berhasil, kami akan segera menghubungi anda setelah akun anda disetujui'));
+            echo json_encode(array('status' => '200', 'message' => 'Verifikasi berhasil'));
         }else{
             echo json_encode(array('status' => '301', 'message' => 'Security Code tidak dapat diverifikasi' ));
         }

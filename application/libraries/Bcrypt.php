@@ -279,11 +279,11 @@ class Bcrypt {
 
 	public function check_password($password, $stored_hash)
 	{
-		//print_r($password);echo "<pre>";print_r($stored_hash);die;
+		// print_r($password);echo "<pre>";print_r($stored_hash);die;
 		$hash = $this->crypt_private($password, $stored_hash);
 		if ($hash[0] == '*')
 			$hash = crypt($password, $stored_hash);
-		//print_r($hash);echo "<pre>";print_r($stored_hash);die;
+		// print_r($hash);echo "<pre>";print_r($stored_hash);die;
 		return $hash == $stored_hash;
 	}
 }
