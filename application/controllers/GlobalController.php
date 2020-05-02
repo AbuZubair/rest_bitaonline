@@ -28,6 +28,8 @@ class GlobalController extends REST_Controller {
         $dospem = $this->post('dospem');
         $user_id = $this->post('user_id');
         $judul_id = $this->post('judul_id');
+
+        $dospem_string = $this->Global_model->get_user_by_id($dospem);
         
         try {
     
@@ -39,6 +41,7 @@ class GlobalController extends REST_Controller {
                 'judul' => $this->regex->_genRegex($judul,'RGXQSL'),
                 'deskripsi' => $this->regex->_genRegex($description,'RGXQSL'),
                 'dospem' => $this->regex->_genRegex($dospem,'RGXQSL'),
+                'dospem_string' => $dospem_string->fullname,
                 'user_id' => $this->regex->_genRegex($user_id,'RGXINT'),
                 'approval' => 0,
             );
@@ -285,6 +288,7 @@ class GlobalController extends REST_Controller {
         $tgl = $this->post('tgl');
         $jam = $this->post('jam');
         $dospem = $this->post('dospem');
+        $type = $this->post('type');
    
         $date = date('Y-m-d H:i:s', strtotime("$tgl $jam"));; 
      
@@ -294,17 +298,28 @@ class GlobalController extends REST_Controller {
             /*execution form*/
     
             $this->db->trans_begin();
-    
+            
             $dataexc = array(
                 'dospem' => $this->regex->_genRegex($dospem,'RGXQSL'),
                 'mahasiswa' => $this->regex->_genRegex($user_id,'RGXQSL'),
                 'jadwal' => $date,
                 'status' => 0,
-                'type' => 'bimbingan',
+                'type' => $type,
                 'created_date' => date('Y-m-d H:i:s')
             );
 
-            $newId = $this->Global_model->save('jadwal_bimbingan',$dataexc);
+            if($type=='sidang'){
+                $checkFirst = $this->Global_model->checkSidang($user_id);
+
+                if(!$checkFirst){
+                    $newId = $this->Global_model->save('jadwal_bimbingan',$dataexc);
+                }else{
+                    $this->Global_model->update('jadwal_bimbingan', array('jadwal' => $date,'updated_date' => date('Y-m-d H:i:s')), array('mahasiswa' => $user_id, 'type' => 'sidang'));
+                }
+
+            }else{
+                $newId = $this->Global_model->save('jadwal_bimbingan',$dataexc);
+            }
     
             if ($this->db->trans_status() === FALSE)
             {

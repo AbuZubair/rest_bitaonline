@@ -54,6 +54,7 @@ class Profile extends REST_Controller {
                 $newId = $this->Profile_model->save('user_profile',$dataexc);
     
                 $this->Profile_model->update('user', array('fullname' => $dataexc['fullname'],'phone_no' => $dataexc['phone']), array('user_id' => $user_id));
+                $this->Profile_model->update('judul', array('dospem_string' => $dataexc['fullname']), array('dospem' => $user_id));
             }else{
 
                 $dataexc['updated_date'] = date('Y-m-d H:i:s');
@@ -61,6 +62,7 @@ class Profile extends REST_Controller {
                 $this->Profile_model->update_profile_user($dataexc, $user_id);
     
                 $this->Profile_model->update('user', array('fullname' => $dataexc['fullname'],'phone_no' => $dataexc['phone']), array('user_id' => $user_id));
+                $this->Profile_model->update('judul', array('dospem_string' => $dataexc['fullname']), array('dospem' => $user_id));
             }
     
             if ($this->db->trans_status() === FALSE)

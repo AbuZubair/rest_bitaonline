@@ -21,7 +21,18 @@ class Global_model extends CI_Model {
 		$this->db->insert($table, $data);
 		
 		return $this->db->insert_id();;
-	}
+    }
+    
+    public function get_user_by_id($id)
+    {
+        $result = $this->db->get_where('user',array('user_id' => $id))->row();
+
+        if($result){
+            return $result;
+        }else{
+            return false;
+        }
+    }
 
     public function get_dospem()
     {
@@ -111,7 +122,7 @@ class Global_model extends CI_Model {
     {
 
         $unread = $this->db->get_where('notification',array('user_id' => $id, 'is_read' => 'N'))->num_rows();
-        $result = $this->db->get_where('notification',array('user_id' => $id))->result();
+        $result = $this->db->order_by('id','desc')->get_where('notification',array('user_id' => $id))->result();
 
         if($result){
             return [$result,$unread];
@@ -148,6 +159,17 @@ class Global_model extends CI_Model {
     {
 
         $result = $this->db->get_where('notification',array('jadwal_id' => $id))->row();
+
+        if($result){
+            return $result;
+        }else{
+            return false;
+        }
+    }
+
+    public function checkSidang($user_id)
+    {
+        $result = $this->db->get_where('jadwal_bimbingan',array('type' => 'sidang', 'mahasiswa' => $user_id))->row();
 
         if($result){
             return $result;

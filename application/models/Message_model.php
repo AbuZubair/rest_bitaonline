@@ -29,7 +29,19 @@ class Message_model extends CI_Model {
         return $this->db->insert_id();
     }
  
-    public function get_room_by_id($q)
+    public function get_room_by_id($q,$r)
+    {
+       
+        $query = "SELECT a.*,b.fullname as user_1,b.path_photo as user_1_photo,c.fullname as user_2,c.path_photo as user_2_photo, x.unread  FROM room_chat a
+                    LEFT JOIN user_profile b ON a.room_participant1_id=b.user_id
+                    LEFT JOIN user_profile c ON a.room_participant2_id=c.user_id
+                    left join (SELECT COUNT(chat_id) AS unread, room_id FROM chat WHERE is_read='N' AND chat_receiver_id=".$q." GROUP BY room_id) x on x.room_id=a.room_id
+                    WHERE (a.room_participant1_id=".$q." OR a.room_participant1_id=".$r.") AND (a.room_participant2_id=".$q." OR a.room_participant2_id=".$r.") ";
+        return $this->db->query($query)->result();
+
+    }
+
+    public function get_room_by_id_($q)
     {
        
         $query = "SELECT a.*,b.fullname as user_1,b.path_photo as user_1_photo,c.fullname as user_2,c.path_photo as user_2_photo, x.unread  FROM room_chat a

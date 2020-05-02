@@ -101,6 +101,7 @@ class Login extends CI_Controller {
 
 		$this->load->model('Login_model','login_model');
 		$this->load->model('Message_model');
+		$this->load->model('Global_model');
 		$this->load->library('bcrypt');
     
 	}
@@ -143,37 +144,62 @@ class Login extends CI_Controller {
 					
 			if($result->level_id==2){
 				$judul = $this->login_model->get_judul($result->user_id);
-				if($judul)$judul_user = $judul;
+				if($judul){
+					$judul_user = $judul;
+
+					$room = $this->Message_model->get_room_by_id($result->user_id,$judul->dospem);
+					$sum_unread=$unread=0;
+	
+					if(!empty($room)){
+						foreach ($room as $value) {
+							if($value->unread!=null){
+								$sum_unread += $value->unread;
+							}
+						}
+	
+						$unread = $this->master->thousandsCurrencyFormat($sum_unread);
+					}
+	
+					$data['sum_unread'] = $unread;
+				}else{
+					$data['sum_unread'] = 0;
+				}
 
 				$data['judul'] = isset($judul)?$judul:'';
+
 
 			}else if($result->level_id==3){
 				$judul = $this->login_model->get_judul_by_dosen($result->user_id);
 				if($judul)$judul_user = $judul;
 
 				$data['judul'] = isset($judul)?$judul:'';
+
+				$room = $this->Message_model->get_room_by_id_($result->user_id);
+				$sum_unread=$unread=0;
+
+				if(!empty($room)){
+					foreach ($room as $value) {
+						if($value->unread!=null){
+							$sum_unread += $value->unread;
+						}
+					}
+
+					$unread = $this->master->thousandsCurrencyFormat($sum_unread);
+				}
+
+				$data['sum_unread'] = $unread;
 			}
 
 			$jadwalbimbingan = $this->login_model->get_jadwalbimbingan($result->user_id,$result->level_id);
-			if($jadwalbimbingan)$jadwalbimbingan_user = $jadwalbimbingan;
+			if($jadwalbimbingan){
+				$jadwalbimbingan_user = $jadwalbimbingan;
+				$data['sum_unread_notif'] = $this->get_notif($result->user_id,$result->level_id);
+			}else{
+				$data['sum_unread_notif'] = 0;
+			}
 
 			$data['jadwal_bimbingan'] = isset($jadwalbimbingan)?$jadwalbimbingan:'';
 
-
-			$room = $this->Message_model->get_room_by_id($result->user_id);
-			$sum_unread=$unread=0;
-
-			if(!empty($room)){
-				foreach ($room as $value) {
-					if($value->unread!=null){
-						$sum_unread += $value->unread;
-					}
-				}
-
-				$unread = $this->master->thousandsCurrencyFormat($sum_unread);
-			}
-
-			$data['sum_unread'] = $unread;
 				
 			
             $response = array(
@@ -196,6 +222,60 @@ class Login extends CI_Controller {
 
         }
         
+
+	}
+	
+	public function get_notif($user_id,$level)
+    {
+        /*get last bimbingan */
+
+        $last_bimb = $this->Global_model->get_last_bimb($user_id,$level);
+
+        $onemonth = date("Y-m-d H:i:s", strtotime( date( "Y-m-d H:i:s", strtotime( date("Y-m-d H:i:s") ) ) . "-1 month" ) );
+        $last_bimb_date = date("Y-m-d H:i:s",strtotime($last_bimb->jadwal));
+
+        if($last_bimb_date <= $onemonth){
+            if($last_bimb->status==0){
+                $dataexec1 = array(
+                    'user_id' => $user_id,
+                    'type' => 'last_bimb',
+                    'msg' => 'Sudah lebih dari satu bulan tidak ada bimbingan',
+                    'created_date' => date("Y-m-d H:i:s"),
+                    'is_read' => 'N'
+                );
+
+                $check_first = $this->Global_model->check_last_bimb($user_id);
+
+                if(!$check_first)$this->Global_model->save('notification',$dataexec1);
+            }
+        }
+
+        /*get bimbingan terdekat */
+
+        $bimb_dekat = $this->Global_model->get_bimb_dekat($user_id,$level);
+
+        if($bimb_dekat){
+            foreach ($bimb_dekat as $key => $value) {
+                if($value->status==0){
+                    $dataexec2 = array(
+                        'user_id' => $user_id,
+                        'type' => 'reminder',
+                        'msg' => 'Bimbingan akan dilakukan pada '.date('l, F d y h:i:s',strtotime($value->jadwal)),
+                        'created_date' => date("Y-m-d H:i:s"),
+                        'is_read' => 'N',
+                        'jadwal_id' => $value->id
+                    );
+
+                    $check_bimb_first = $this->Global_model->check_bimb_first($value->id);
+    
+                    if(!$check_bimb_first)$this->Global_model->save('notification',$dataexec2);
+                }
+            }
+        }
+
+		$data = $this->Global_model->get_all_notif($user_id);
+	
+		return $data[1];
 
     }
 
@@ -235,7 +315,7 @@ class Login extends CI_Controller {
 
                 $message = "User berhasil di update";
             }else{
-				 $dataexc['is_active'] = 'N';
+				 $dataexc['is_active'] = 'Y';
 				 $dataexc['security_code'] = rand(1000, 9999);
                 $dataexc['password'] = $this->bcrypt->hash_password($security_code);
                 $dataexc['created_date'] = date('Y-m-d H:i:s');
@@ -261,13 +341,13 @@ class Login extends CI_Controller {
 				
 				/*send notification by sms*/
 
-				$config_sms = array(
-					'from' => 'Bitaonline',
-					'phone' => $newData->phone_no,
-					'message' => '(no-reply) Bitaonline : Kode Verifikasi anda '.$newData->security_code.'',
-					);
+				// $config_sms = array(
+				// 	'from' => 'Bitaonline',
+				// 	'phone' => $newData->phone_no,
+				// 	'message' => '(no-reply) Bitaonline : Kode Verifikasi anda '.$newData->security_code.'',
+				// 	);
 
-				$send_sms = $this->api->adsmedia_send_sms($config_sms);
+				// $send_sms = $this->api->adsmedia_send_sms($config_sms);
 				
 				/*end send notification by sms*/
             }		
@@ -286,7 +366,7 @@ class Login extends CI_Controller {
 					echo json_encode(array('status' => 200, 'message' => 'Proses berhasil, '.$message.'', 'id' => $newId ));
 				}else{
 					$hash_security_code = $this->bcrypt->hash_password($dataexc['security_code']);
-					echo json_encode(array('status' => 200, 'message' => 'Silahkan Verifikasi Code yang dikirimkan via SMS', 'verifikasi_code' => $dataexc['security_code'], 'uid' => $hash_security_code,'id' => $newId ));
+					echo json_encode(array('status' => 200, 'message' => 'Proses berhasil', 'verifikasi_code' => $dataexc['security_code'], 'uid' => $hash_security_code,'id' => $newId ));
 				}
 				
 			}

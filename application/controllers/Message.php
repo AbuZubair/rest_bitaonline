@@ -11,7 +11,7 @@ class Message extends REST_Controller {
 
 	public function get_room_by_id_get()
     {
-		$data = $this->Message_model->get_room_by_id($this->get('q'));
+		$data = $this->Message_model->get_room_by_id($this->get('q'),$this->get('r'));
         $sum_unread=$unread=0;
 
 		if(!empty($data)){
@@ -25,7 +25,37 @@ class Message extends REST_Controller {
 		}else{
             if(isset($_GET['r'])){
                 $this->Message_model->create_room_by_id($this->get('q'),$this->get('r'));
-                $data = $this->Message_model->get_room_by_id($this->get('q'));
+                $data = $this->Message_model->get_room_by_id($this->get('q'),$this->get('r'));
+            }
+        }
+               
+		
+		$resp = array(
+			'status' => 200,
+			'data' => $data,
+			'sum_unread' =>$unread,
+		);
+		
+        $this->response($resp, 200);
+    }
+
+    public function get_room_by_id2_get()
+    {
+		$data = $this->Message_model->get_room_by_id_($this->get('q'));
+        $sum_unread=$unread=0;
+
+		if(!empty($data)){
+			foreach ($data as $value) {
+				if($value->unread!=null){
+					$sum_unread += $value->unread;
+				}
+			}
+
+			$unread = $this->master->thousandsCurrencyFormat($sum_unread);
+		}else{
+            if(isset($_GET['r'])){
+                $this->Message_model->create_room_by_id($this->get('q'),$this->get('r'));
+                $data = $this->Message_model->get_room_by_id_($this->get('q'));
             }
         }
                
@@ -72,7 +102,7 @@ class Message extends REST_Controller {
   
         $data = $this->Message_model->get_contact_list($this->get('id'));
 
-        $room = $this->Message_model->get_room_by_id($this->get('id'));
+        $room = $this->Message_model->get_room_by_id_($this->get('id'));
 
         $this->response(array('status' => 200, 'message' => 'Sukses', 'data' => $data),200);
     }
